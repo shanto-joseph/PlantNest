@@ -1,4 +1,4 @@
-// Admin JavaScript for Plant & Gardening Store
+// Admin JavaScript for PlantNest
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize sidebar functionality

@@ -110,7 +110,7 @@ class NotificationService:
     def notify_welcome_message(user):
         """Create welcome notification for new users (customer)"""
         return NotificationService.create_notification(
-            title="Welcome to Plant & Garden Store!",
+            title="Welcome to PlantNest!",
             message="Welcome to our gardening community! Explore our plant collection, read expert tips, and connect with fellow gardeners. Happy gardening!",
             notification_type="welcome",
             recipient=user,

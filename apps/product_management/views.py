@@ -15,7 +15,7 @@ def home(request):
     context = {
         'featured_products': featured_products,
         'categories': categories,
-        'page_title': 'Welcome to Plant Store'
+        'page_title': 'Welcome to PlantNest'
     }
     return render(request, 'customer/home.html', context)
 

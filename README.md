@@ -1,4 +1,4 @@
-# Plant Store 🌿
+# PlantNest 🌿
 
 A Django-based e-commerce platform for plants, featuring product management, order processing, AI plant chat, community blog, and a full custom admin dashboard.
 

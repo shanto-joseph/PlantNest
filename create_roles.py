@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Create Default Roles Script for Plant & Gardening Store
+Create Default Roles Script for PlantNest
 This script creates default roles for the application.
 """
 

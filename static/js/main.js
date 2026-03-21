@@ -1,4 +1,4 @@
-// Main JavaScript for Plant & Gardening Store
+// Main JavaScript for PlantNest
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips

@@ -1,4 +1,4 @@
-// Enhanced Cart JavaScript for Plant & Gardening Store
+// Enhanced Cart JavaScript for PlantNest
 
 class CartManager {
     constructor() {

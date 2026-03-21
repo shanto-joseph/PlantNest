@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database Creation Script for Plant & Gardening Store
+Database Creation Script for PlantNest
 This script creates the MySQL database with proper character set and collation.
 """
 
@@ -142,7 +142,7 @@ def test_connection(config):
 def main():
     """Main function to create database"""
     print("=" * 60)
-    print("Plant & Gardening Store - Database Creation Script")
+    print("PlantNest - Database Creation Script")
     print("=" * 60)
     
     # Load configuration

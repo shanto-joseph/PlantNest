@@ -41,7 +41,7 @@ def register_view(request):
             CustomerNotificationService.notify_welcome_message(user)
             
             login(request, user)
-            messages.success(request, f'Welcome to Plant Store, {user.username}!')
+            messages.success(request, f'Welcome to PlantNest, {user.username}!')
             # Redirect based on user role
             if user.is_admin:
                 return redirect('admin_control:dashboard')

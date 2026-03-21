@@ -1,4 +1,4 @@
-// Customer JavaScript for Plant & Gardening Store
+// Customer JavaScript for PlantNest
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips
