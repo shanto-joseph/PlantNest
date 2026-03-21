@@ -1,0 +1,224 @@
+/* Enhanced Cart Styles for Plant & Gardening Store */
+
+/* Cart Animation Keyframes */
+@keyframes cartItemSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes cartItemSlideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+}
+
+@keyframes quantityPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Cart Item Animations */
+.cart-item {
+    animation: cartItemSlideIn 0.5s ease-out;
+}
+
+.cart-item.removing {
+    animation: cartItemSlideOut 0.3s ease-in forwards;
+}
+
+.quantity-input.updating {
+    animation: quantityPulse 0.3s ease-in-out;
+}
+
+/* Enhanced Hover Effects */
+.cart-item:hover .item-image {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.cart-item:hover .item-name {
+    color: var(--sea-green);
+    transition: color 0.3s ease;
+}
+
+/* Loading States */
+.cart-item.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.cart-item.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    z-index: 10;
+}
+
+/* Quantity Controls Enhancement */
+.quantity-controls:hover {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+}
+
+/* Summary Card Enhancements */
+.cart-summary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 70px rgba(0,0,0,0.15);
+}
+
+/* Button Enhancements */
+.btn-checkout:active {
+    transform: translateY(-1px);
+}
+
+.btn-remove:active {
+    transform: scale(0.95);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 576px) {
+    .cart-item {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .item-image,
+    .item-placeholder {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .item-name {
+        font-size: 1.1rem;
+    }
+    
+    .item-price {
+        font-size: 1rem;
+    }
+    
+    .quantity-controls {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .cart-summary {
+        padding: 1.5rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .cart-hero,
+    .btn-checkout,
+    .btn-continue,
+    .btn-remove,
+    .quantity-controls {
+        display: none !important;
+    }
+    
+    .cart-page-container {
+        background: white !important;
+    }
+    
+    .cart-item {
+        border: 1px solid #ddd !important;
+        background: white !important;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .cart-item {
+        border-width: 3px;
+    }
+    
+    .quantity-btn {
+        border: 2px solid var(--dartmouth-green);
+    }
+    
+    .btn-checkout,
+    .btn-remove {
+        border-width: 3px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .cart-item,
+    .cart-item:hover .item-image,
+    .cart-summary:hover,
+    .btn-checkout::before {
+        animation: none;
+        transition: none;
+        transform: none;
+    }
+}
+
+/* Focus Styles for Accessibility */
+.quantity-btn:focus,
+.quantity-input:focus,
+.btn-remove:focus,
+.btn-checkout:focus {
+    outline: 3px solid var(--sea-green);
+    outline-offset: 2px;
+}
+
+/* Error States */
+.cart-item.error {
+    border-color: #e74c3c;
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, var(--nyanza) 100%);
+}
+
+.cart-item.error .item-name {
+    color: #e74c3c;
+}
+
+/* Success States */
+.cart-item.updated {
+    border-color: var(--sea-green);
+    background: linear-gradient(135deg, rgba(64, 145, 108, 0.1) 0%, var(--nyanza) 100%);
+}
+
+/* Tooltip Styles */
+.tooltip-custom {
+    position: relative;
+}
+
+.tooltip-custom::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--dartmouth-green);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.tooltip-custom:hover::after {
+    opacity: 1;
+}
