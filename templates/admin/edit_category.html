@@ -1,0 +1,141 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Edit Category - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1><i class="fas fa-edit"></i> Edit Category</h1>
+            <p class="text-muted">Update category information</p>
+        </div>
+        <div class="col-lg-4 text-right">
+            <a href="{% url 'admin_control:manage_categories' %}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left"></i> Back to Categories
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card category-form-card">
+            <div class="card-header">
+                <h5><i class="fas fa-tag"></i> Category Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" class="admin-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-section">
+                        <h6 class="section-title">Basic Information</h6>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">Category Name *</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <small class="text-danger">{{ form.name.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <small class="text-danger">{{ form.description.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Category Image Upload (moved from sidebar) -->
+                    <div class="form-group">
+                        <label for="{{ form.image.id_for_label }}">Update Image</label>
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                            <small class="text-danger">{{ form.image.errors.0 }}</small>
+                        {% endif %}
+                        <small class="form-text text-muted">
+                            Leave empty to keep current image
+                        </small>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-admin-primary btn-lg">
+                            <i class="fas fa-save"></i> Update Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="sidebar">
+            <!-- Current Image -->
+            <div class="card current-image-card mb-4">
+                <div class="card-header">
+                    <h6><i class="fas fa-image"></i> Category Image</h6>
+                </div>
+                <div class="card-body">
+                    {% if category.image %}
+                    <img src="{{ category.image.url }}" class="img-fluid rounded mb-3" alt="{{ category.name }}">
+                    {% else %}
+                    <div class="no-image-placeholder mb-3">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                        <p class="text-muted">No image uploaded</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="image-preview" id="imagePreview" style="display: none;">
+                        <!-- New image preview will appear here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Category Stats -->
+            <div class="card stats-card">
+                <div class="card-header">
+                    <h6><i class="fas fa-chart-bar"></i> Category Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="stat-item">
+                        <strong>Products:</strong>
+                        <span>{{ category.products.count }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>Created:</strong>
+                        <span>{{ category.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>Last Updated:</strong>
+                        <span>{{ category.updated_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Image preview functionality
+document.getElementById('{{ form.image.id_for_label }}').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `
+                <h6>New Image Preview:</h6>
+                <img src="${e.target.result}" class="img-fluid rounded" alt="Preview">
+            `;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

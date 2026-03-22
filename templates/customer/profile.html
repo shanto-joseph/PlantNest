@@ -1,0 +1,733 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-page-container {
+    background: linear-gradient(135deg, var(--nyanza) 0%, #f8f9fa 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.profile-hero {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 3rem 0;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.profile-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.profile-sidebar {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.profile-image-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--celadon);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.profile-image:hover {
+    transform: scale(1.05);
+    border-color: var(--sea-green);
+}
+
+.profile-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border: 4px solid var(--celadon);
+    color: var(--dartmouth-green);
+    font-size: 3rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.profile-placeholder:hover {
+    transform: scale(1.05);
+    border-color: var(--sea-green);
+}
+
+.profile-info h4 {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin: 1rem 0 0.5rem;
+}
+
+.profile-info .text-muted {
+    margin-bottom: 0.5rem;
+}
+
+.member-since {
+    background: var(--nyanza);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    border: 2px solid var(--celadon-2);
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    background: var(--nyanza);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--sea-green);
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--dartmouth-green);
+    margin-top: 0.25rem;
+}
+
+.profile-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.section-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.section-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.form-group label {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-control:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+    background: white;
+    transform: translateY(-2px);
+}
+
+.btn-update {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-update:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.address-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.address-card {
+    background: #f8f9fa;
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.address-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.address-header {
+    display: flex;
+    justify-content: between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.address-type {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.default-badge {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.address-details {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.address-details p {
+    margin-bottom: 0.25rem;
+}
+
+.address-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-address {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 2px solid;
+}
+
+.btn-edit {
+    background: transparent;
+    color: var(--sea-green);
+    border-color: var(--sea-green);
+}
+
+.btn-edit:hover {
+    background: var(--sea-green);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-delete {
+    background: transparent;
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.btn-delete:hover {
+    background: #e74c3c;
+    color: white;
+    text-decoration: none;
+}
+
+.add-address-btn {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.add-address-btn:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--nyanza);
+    border-radius: 15px;
+    border: 2px solid var(--celadon-2);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: var(--celadon-2);
+    margin-bottom: 1rem;
+}
+
+.empty-state h6 {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.orders-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--celadon-2);
+}
+
+.orders-table .table {
+    margin: 0;
+}
+
+.orders-table th {
+    background: var(--nyanza);
+    border: none;
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.orders-table td {
+    border: none;
+    padding: 1rem;
+    border-bottom: 1px solid var(--celadon-2);
+}
+
+.orders-table tbody tr:hover {
+    background: var(--nyanza);
+}
+
+.order-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-delivered { background: #d4edda; color: #155724; }
+.status-shipped { background: #d1ecf1; color: #0c5460; }
+.status-processing { background: #fff3cd; color: #856404; }
+.status-pending { background: #f8d7da; color: #721c24; }
+
+.btn-view-order {
+    background: transparent;
+    color: var(--sea-green);
+    border: 2px solid var(--sea-green);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-view-order:hover {
+    background: var(--sea-green);
+    color: white;
+    text-decoration: none;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .profile-page-container {
+        padding: 1rem 0;
+    }
+    
+    .profile-hero {
+        padding: 2rem 0;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-sidebar,
+    .profile-content {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-sidebar {
+        position: static;
+    }
+    
+    .profile-image,
+    .profile-placeholder {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .profile-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .address-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .address-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page-container">
+    <div class="container-fluid">
+        <div class="profile-hero">
+            <div class="profile-hero-content">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-user-circle"></i> My Profile
+                </h1>
+                <p class="lead">Manage your account and gardening preferences</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="profile-sidebar">
+                    <div class="profile-image-section">
+                        <div id="profilePicClickable">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" class="profile-image" alt="Profile Picture">
+                            {% else %}
+                                <div class="profile-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div id="profilePicPreview" style="margin-top:1rem;"></div>
+                        <div class="profile-info">
+                            <h4>{{ user.get_full_name|default:user.username }}</h4>
+                            <p class="text-muted">{{ user.email }}</p>
+                            {% if user.phone_number %}
+                                <p class="text-muted">
+                                    <i class="fas fa-phone"></i> {{ user.phone_number }}
+                                </p>
+                            {% endif %}
+                            
+                            <div class="member-since">
+                                <i class="fas fa-calendar-alt"></i>
+                                Member since {{ user.date_joined|date:"F Y" }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">{{ user.orders.count }}</span>
+                            <div class="stat-label">Orders</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ addresses.count }}</span>
+                            <div class="stat-label">Addresses</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ user.reviews.count }}</span>
+                            <div class="stat-label">Reviews</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">0</span>
+                            <div class="stat-label">Wishlist</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-8">
+                <!-- Profile Form -->
+                <div class="profile-content">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h5 class="section-title">Update Profile Information</h5>
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                                    {{ form.first_name }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                                    {{ form.last_name }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.email.id_for_label }}">Email Address</label>
+                                    {{ form.email }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+                                    {{ form.phone_number }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.bio.id_for_label }}">Bio</label>
+                            {{ form.bio }}
+                            <small class="form-text text-muted">Tell us about yourself and your gardening journey</small>
+                        </div>
+                        
+                        <div class="form-group" style="display:none;">
+                            {{ form.profile_picture }}
+                        </div>
+                        
+                        <button type="submit" class="btn-update">
+                            <i class="fas fa-save"></i> Update Profile
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Addresses Section -->
+                <div class="profile-content">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h5 class="section-title">My Addresses</h5>
+                        <div class="ml-auto">
+                            <a href="{% url 'user_management:add_address' %}" class="add-address-btn">
+                                <i class="fas fa-plus"></i> Add Address
+                            </a>
+                        </div>
+                    </div>
+                    
+                    {% if addresses %}
+                        <div class="address-grid">
+                            {% for address in addresses %}
+                            <div class="address-card">
+                                <div class="address-header">
+                                    <div>
+                                        <div class="address-type">
+                                            {{ address.get_address_type_display }}
+                                            {% if address.is_default %}
+                                                <span class="default-badge">Default</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="address-details">
+                                    <p><strong>{{ address.first_name }} {{ address.last_name }}</strong></p>
+                                    <p>{{ address.address_line }}</p>
+                                    <p>{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
+                                    <p>{{ address.country }}</p>
+                                    {% if address.phone_number %}
+                                        <p><i class="fas fa-phone"></i> {{ address.phone_number }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="address-actions">
+                                    <a href="{% url 'user_management:edit_address' address.id %}" class="btn-address btn-edit">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a href="{% url 'user_management:delete_address' address.id %}" class="btn-address btn-delete">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <h6>No addresses saved</h6>
+                            <p>Add an address to make checkout faster and easier!</p>
+                            <a href="{% url 'user_management:add_address' %}" class="add-address-btn">
+                                <i class="fas fa-plus"></i> Add Your First Address
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Recent Orders -->
+                <div class="profile-content">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h5 class="section-title">Recent Orders</h5>
+                    </div>
+                    
+                    {% if user.orders.all %}
+                        <div class="orders-table">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Total</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in user.orders.all|slice:":5" %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ order.order_number }}</strong>
+                                        </td>
+                                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <span class="order-status status-{{ order.status }}">
+                                                {{ order.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-primary">₹{{ order.total_amount }}</strong>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'order_payment:order_success' order.id %}" class="btn-view-order">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <h6>No orders yet</h6>
+                            <p>Start shopping to see your orders here!</p>
+                            <a href="{% url 'product_management:product_list' %}" class="add-address-btn">
+                                <i class="fas fa-seedling"></i> Shop Now
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var clickable = document.getElementById('profilePicClickable');
+    var fileInput = document.querySelector('input[name="profile_picture"]');
+    var preview = document.getElementById('profilePicPreview');
+    if (clickable && fileInput) {
+        clickable.style.cursor = 'pointer';
+        clickable.addEventListener('click', function() {
+            fileInput.click();
+        });
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files && fileInput.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = '<img src="' + e.target.result + '" class="profile-image" style="margin-bottom:1rem;">';
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

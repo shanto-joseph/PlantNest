@@ -1,0 +1,422 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Edit Review - {{ product.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.edit-review-hero {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 3rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.edit-review-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.edit-review-content {
+    position: relative;
+    z-index: 2;
+}
+
+.review-container {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem;
+    margin: -2rem 1rem 3rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 3;
+    border: 2px solid var(--celadon-2);
+}
+
+.product-info {
+    background: var(--nyanza);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 2px solid var(--celadon-2);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.product-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid var(--celadon-2);
+}
+
+.product-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    background: var(--celadon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dartmouth-green);
+    font-size: 2rem;
+}
+
+.current-rating {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 2px solid #f39c12;
+    border-radius: 15px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.current-rating h6 {
+    color: #856404;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.current-stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.current-star {
+    font-size: 1.5rem;
+    color: #ffc107;
+}
+
+.rating-section {
+    margin-bottom: 2rem;
+}
+
+.rating-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rating-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.rating-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.rating-option:hover {
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+}
+
+.rating-option.selected {
+    border-color: var(--sea-green);
+    background: linear-gradient(135deg, rgba(64, 145, 108, 0.1) 0%, var(--nyanza) 100%);
+}
+
+.rating-option input[type="radio"] {
+    display: none;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.rating-star {
+    font-size: 1.5rem;
+    color: #ddd;
+    transition: color 0.3s ease;
+}
+
+.rating-star.filled {
+    color: #ffc107;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--celadon-2);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-control {
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-control:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+    background: white;
+    transform: translateY(-2px);
+}
+
+.btn-update {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-update:hover {
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(64, 145, 108, 0.3);
+}
+
+.btn-cancel {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border: 2px solid var(--celadon-2);
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    margin-left: 1rem;
+}
+
+.btn-cancel:hover {
+    color: var(--sea-green);
+    text-decoration: none;
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .edit-review-hero {
+        padding: 2rem 0;
+    }
+    
+    .review-container {
+        margin: -1rem 1rem 2rem;
+        padding: 2rem 1.5rem;
+    }
+    
+    .product-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .btn-cancel {
+        margin-left: 0;
+        margin-top: 1rem;
+        display: block;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-review-hero">
+    <div class="container edit-review-content">
+        <div class="text-center">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-edit"></i> Edit Your Review
+            </h1>
+            <p class="lead">Update your experience and help other gardeners</p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'product_management:product_detail' product.id %}">{{ product.name }}</a></li>
+            <li class="breadcrumb-item active">Edit Review</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="review-container">
+                <!-- Product Information -->
+                <div class="product-info">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="product-placeholder">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                    {% endif %}
+                    <div class="product-details flex-grow-1">
+                        <h5>{{ product.name }}</h5>
+                        <div class="text-muted">{{ product.category.name }}</div>
+                        <div class="text-muted">Order #{{ review.order.order_number }}</div>
+                        <span class="verified-badge">
+                            <i class="fas fa-check-circle"></i> Verified Purchase
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Current Rating Display -->
+                <div class="current-rating">
+                    <h6>Your Current Rating</h6>
+                    <div class="current-stars">
+                        {% for i in review.get_star_range %}
+                            <span class="current-star {% if i <= review.rating %}filled{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                    <div class="text-muted">{{ review.get_rating_display }}</div>
+                </div>
+
+                <form method="post" id="editReviewForm">
+                    {% csrf_token %}
+                    
+                    <!-- Rating Section -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="fas fa-star"></i> Update Rating
+                        </h5>
+                        
+                        <div class="rating-options">
+                            {% for value, label in form.rating.field.choices %}
+                            <label class="rating-option {% if value == review.rating %}selected{% endif %}" for="rating_{{ value }}">
+                                <input type="radio" name="rating" value="{{ value }}" id="rating_{{ value }}" 
+                                       {% if value == review.rating %}checked{% endif %} required>
+                                <div class="rating-stars">
+                                    {% for i in "12345" %}
+                                        <span class="rating-star {% if forloop.counter <= value %}filled{% endif %}">★</span>
+                                    {% endfor %}
+                                </div>
+                                <div>
+                                    <div class="rating-label">{{ label }}</div>
+                                    <div class="rating-description">
+                                        {% if value == 5 %}Exceeded expectations - highly recommend!
+                                        {% elif value == 4 %}Very satisfied with this purchase
+                                        {% elif value == 3 %}Good product, met expectations
+                                        {% elif value == 2 %}Below expectations, some issues
+                                        {% else %}Poor quality, would not recommend
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Review Title -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="fas fa-heading"></i> Review Title
+                        </h5>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.title.id_for_label }}">Title *</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <small class="text-danger">{{ form.title.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Review Content -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="fas fa-edit"></i> Your Review
+                        </h5>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.content.id_for_label }}">Detailed Review *</label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <small class="text-danger">{{ form.content.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions text-center">
+                        <button type="submit" class="btn-update">
+                            <i class="fas fa-save"></i> Update Review
+                        </button>
+                        <a href="{% url 'product_management:product_detail' product.id %}" class="btn-cancel">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle rating selection
+    const ratingOptions = document.querySelectorAll('.rating-option');
+    
+    ratingOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove selected class from all options
+            ratingOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            this.classList.add('selected');
+            
+            // Check the radio button
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+        });
+    });
+});
+</script>
+{% endblock %}

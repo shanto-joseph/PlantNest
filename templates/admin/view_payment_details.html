@@ -1,0 +1,637 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Payment Details - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.payment-details-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, var(--nyanza) 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.payment-details-header {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.payment-details-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.payment-details-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.payment-status-badge {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: inline-block;
+}
+
+.status-successful {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border: 2px solid #28a745;
+}
+
+.status-failed {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+    border: 2px solid #dc3545;
+}
+
+.status-refunded {
+    background: linear-gradient(135deg, #cce5ff 0%, #b3d9ff 100%);
+    color: #0056b3;
+    border: 2px solid #007bff;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.info-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.section-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.section-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.payment-info-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--nyanza);
+    border-radius: 12px;
+    border: 1px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.info-item:hover {
+    border-color: var(--sea-green);
+    background: white;
+    transform: translateX(5px);
+}
+
+.info-label {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-label i {
+    color: var(--sea-green);
+    width: 16px;
+}
+
+.info-value {
+    color: #333;
+    font-weight: 500;
+    text-align: right;
+}
+
+.customer-card {
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.customer-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 auto 1rem;
+}
+
+.customer-name {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.customer-email {
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.order-link {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.order-link:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--nyanza);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.order-item:hover {
+    border-color: var(--sea-green);
+    transform: translateX(5px);
+}
+
+.product-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid var(--celadon-2);
+}
+
+.product-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    background: var(--celadon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dartmouth-green);
+    font-size: 1.5rem;
+}
+
+.product-details {
+    flex: 1;
+}
+
+.product-name {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.product-category {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.product-quantity {
+    color: var(--sea-green);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.product-price {
+    text-align: right;
+}
+
+.price-each {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.price-total {
+    color: var(--sea-green);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.action-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    text-align: center;
+}
+
+.action-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-action {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 2px solid;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border-color: transparent;
+}
+
+.btn-primary:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.btn-warning {
+    background: transparent;
+    color: #f39c12;
+    border-color: #f39c12;
+}
+
+.btn-warning:hover {
+    background: #f39c12;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-danger {
+    background: transparent;
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.btn-danger:hover {
+    background: #e74c3c;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border-color: var(--celadon-2);
+}
+
+.btn-secondary:hover {
+    color: var(--sea-green);
+    text-decoration: none;
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+}
+
+.refund-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 2px solid #f39c12;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.refund-warning h6 {
+    color: #856404;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.refund-warning p {
+    color: #856404;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .payment-details-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .order-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    
+    .product-price {
+        text-align: center;
+    }
+    
+    .action-card {
+        margin-top: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-details-container">
+    <div class="container-fluid">
+        <!-- Enhanced Header -->
+        <div class="payment-details-header">
+            <div class="payment-details-header-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-5 mb-2">
+                            <i class="fas fa-receipt"></i> Payment Details
+                        </h1>
+                        <p class="lead mb-2">Transaction ID: {{ payment.transaction_id|default:"N/A" }}</p>
+                        <div class="payment-status-badge {% if payment.is_successful %}{% if payment.is_refunded %}status-refunded{% else %}status-successful{% endif %}{% else %}status-failed{% endif %}">
+                            {% if payment.is_successful %}
+                                {% if payment.is_refunded %}
+                                    <i class="fas fa-undo"></i> Refunded
+                                {% else %}
+                                    <i class="fas fa-check"></i> Successful
+                                {% endif %}
+                            {% else %}
+                                <i class="fas fa-times"></i> Failed
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-lg-right text-center mt-3 mt-lg-0">
+                        <a href="{% url 'admin_control:manage_payments' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-arrow-left"></i> Back to Payments
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="main-content">
+                <!-- Payment Information -->
+                <div class="info-card">
+                    <h4 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        Payment Information
+                    </h4>
+                    
+                    <div class="payment-info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-hashtag"></i> Transaction ID
+                            </div>
+                            <div class="info-value">
+                                <code>{{ payment.transaction_id|default:"N/A" }}</code>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-rupee-sign"></i> Amount
+                            </div>
+                            <div class="info-value">
+                                <strong style="color: var(--sea-green); font-size: 1.2rem;">₹{{ payment.amount }}</strong>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-credit-card"></i> Payment Method
+                            </div>
+                            <div class="info-value">{{ payment.get_payment_method_display }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar"></i> Payment Date
+                            </div>
+                            <div class="info-value">{{ payment.payment_date|date:"M d, Y g:i A" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-check-circle"></i> Status
+                            </div>
+                            <div class="info-value">
+                                {% if payment.is_successful %}
+                                    {% if payment.is_refunded %}
+                                        <span class="badge badge-info">Refunded</span>
+                                    {% else %}
+                                        <span class="badge badge-success">Successful</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge badge-danger">Failed</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-shopping-bag"></i> Order Number
+                            </div>
+                            <div class="info-value">
+                                <a href="{% url 'admin_control:view_order_details' payment.order.id %}" class="order-link">
+                                    #{{ payment.order.order_number }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="info-card">
+                    <h4 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        Order Items
+                    </h4>
+                    
+                    {% for item in order_items %}
+                    <div class="order-item">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" class="product-image" alt="{{ item.product.name }}">
+                        {% else %}
+                            <div class="product-placeholder">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="product-details">
+                            <div class="product-name">{{ item.product.name }}</div>
+                            <div class="product-category">{{ item.product.category.name }}</div>
+                            <div class="product-quantity">Quantity: {{ item.quantity }}</div>
+                        </div>
+                        
+                        <div class="product-price">
+                            <div class="price-each">₹{{ item.price }} each</div>
+                            <div class="price-total">₹{{ item.total_price }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <!-- Customer Information -->
+                <div class="info-card">
+                    <h5 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        Customer
+                    </h5>
+                    
+                    <div class="customer-card">
+                        <div class="customer-avatar">
+                            {{ payment.order.user.first_name.0|default:payment.order.user.username.0|upper }}
+                        </div>
+                        <div class="customer-name">{{ payment.order.user.get_full_name|default:payment.order.user.username }}</div>
+                        <div class="customer-email">{{ payment.order.user.email }}</div>
+                        {% if payment.order.user.phone_number %}
+                            <div class="customer-phone">
+                                <i class="fas fa-phone"></i> {{ payment.order.user.phone_number }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="action-card">
+                    <h5 class="action-title">
+                        <i class="fas fa-tools"></i> Quick Actions
+                    </h5>
+                    
+                    {% if is_refundable %}
+                    <!-- <div class="refund-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Refund Available</h6>
+                        <p>This payment can be refunded. The order will be cancelled and stock will be restored.</p>
+                    </div> -->
+                    {% endif %}
+                    
+                    <div class="action-buttons">
+                        <a href="{% url 'admin_control:view_order_details' payment.order.id %}" class="btn-action btn-primary">
+                            <i class="fas fa-shopping-bag"></i> View Order
+                        </a>
+                        
+                        <a href="mailto:{{ payment.order.user.email }}?subject=Regarding Payment {{ payment.transaction_id|default:payment.id }}" 
+                           class="btn-action btn-warning">
+                            <i class="fas fa-envelope"></i> Email Customer
+                        </a>
+                        
+                        {% if is_refundable %}
+                        <form method="post" action="{% url 'admin_control:process_refund' payment.id %}" 
+                              onsubmit="return confirm('Are you sure you want to process a refund for ₹{{ payment.amount }}? This will cancel the order and restore stock.');">
+                            {% csrf_token %}
+                            <!-- <button type="submit" class="btn-action btn-danger">
+                                <i class="fas fa-undo"></i> Process Refund
+                            </button> -->
+                        </form>
+                        {% endif %}
+                        
+                        <a href="{% url 'admin_control:manage_payments' %}" class="btn-action btn-secondary">
+                            <i class="fas fa-list"></i> All Payments
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

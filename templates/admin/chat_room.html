@@ -1,0 +1,697 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Chat with {{ chat_room.customer.username }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-room-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, var(--nyanza) 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.chat-room-header {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.chat-room-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.chat-room-header-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.customer-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.customer-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.customer-details h4 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.customer-details .text-muted {
+    opacity: 0.8;
+}
+
+.chat-interface {
+    background: white;
+    border-radius: 20px;
+    height: 600px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-messages-container {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+
+.message {
+    display: flex;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.admin-message {
+    justify-content: flex-end;
+}
+
+.customer-message {
+    justify-content: flex-start;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin: 0 0.75rem;
+    flex-shrink: 0;
+}
+
+.admin-message .message-avatar {
+    background: none;
+    padding: 0;
+    border: 2px solid var(--dartmouth-green);
+    order: 2;
+}
+
+.customer-message .message-avatar {
+    background: none;
+    padding: 0;
+    border: 2px solid var(--sea-green);
+}
+
+.message-content {
+    max-width: 70%;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-message .message-content {
+    align-items: flex-end;
+}
+
+.customer-message .message-content {
+    align-items: flex-start;
+}
+
+.message-text {
+    padding: 1rem 1.25rem;
+    border-radius: 20px;
+    word-wrap: break-word;
+    line-height: 1.5;
+    position: relative;
+    font-size: 0.95rem;
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.message-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.customer-message .message-avatar-placeholder {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+}
+
+.admin-message .message-avatar-placeholder {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+}
+
+.admin-message .message-text {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    border-radius: 20px 20px 8px 20px;
+}
+
+.customer-message .message-text {
+    background: white;
+    color: #333;
+    border: 2px solid var(--celadon-2);
+    border-radius: 20px 20px 20px 8px;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+    padding: 0 0.75rem;
+}
+
+.chat-input-area {
+    padding: 1.5rem;
+    background: white;
+    border-top: 2px solid var(--celadon-2);
+}
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.chat-input {
+    flex: 1;
+    border: 2px solid var(--celadon-2);
+    border-radius: 25px;
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+    resize: none;
+    min-height: 50px;
+    max-height: 120px;
+}
+
+.chat-input:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+}
+
+.chat-send-btn {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.chat-send-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(64, 145, 108, 0.4);
+}
+
+.chat-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.typing-indicator {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.customer-typing {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 3px;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--sea-green);
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Scrollbar Styling */
+.chat-messages-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-messages-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb {
+    background: var(--celadon-2);
+    border-radius: 4px;
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb:hover {
+    background: var(--sea-green);
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .chat-room-header {
+        padding: 1rem;
+    }
+    
+    .chat-room-header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .chat-interface {
+        height: 500px;
+    }
+    
+    .message-content {
+        max-width: 85%;
+    }
+    
+    .chat-input-wrapper {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .chat-send-btn {
+        align-self: flex-end;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-room-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="chat-room-header">
+            <div class="chat-room-header-content">
+                <div class="customer-info">
+                    <div class="customer-avatar">
+                        {% if chat_room.customer.profile_picture %}
+                            <img src="{{ chat_room.customer.profile_picture.url }}" alt="{{ chat_room.customer.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                        {% else %}
+                            <div style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%); color: white; font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; justify-content: center;">
+                                {{ chat_room.customer.first_name.0|default:chat_room.customer.username.0|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="customer-details">
+                        <h4>{{ chat_room.customer.get_full_name|default:chat_room.customer.username }}</h4>
+                        <div class="text-muted">{{ chat_room.customer.email }}</div>
+                        <div class="text-muted">
+                            <i class="fas fa-clock"></i> Chat started {{ chat_room.created_at|timesince }} ago
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <a href="{% url 'admin_control:admin_chat' %}" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left"></i> Back to Chats
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="chat-interface">
+            <div class="chat-messages-container" id="chatMessages">
+                {% for message in messages %}
+                <div class="message {% if message.sender.is_admin %}admin-message{% else %}customer-message{% endif %}">
+                    <div style="display: none;" data-message-id="{{ message.id }}"></div>
+                    <div class="message-avatar">
+                        {% if message.sender.role.name.lower == 'admin' %}
+                            {% if message.sender.profile_picture %}
+                                <img src="{{ message.sender.profile_picture.url }}" alt="Admin" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                            {% else %}
+                                <div class="message-avatar-placeholder">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            {% if message.sender.profile_picture %}
+                                <img src="{{ message.sender.profile_picture.url }}" alt="{{ message.sender.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                            {% else %}
+                                <div class="message-avatar-placeholder">
+                                    {{ message.sender.first_name.0|default:message.sender.username.0|upper }}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">{{ message.content }}</div>
+                        <div class="message-time">
+                            {{ message.sender.get_full_name|default:message.sender.username }} • {{ message.created_at|time:"H:i" }}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <h6>Start the conversation</h6>
+                    <p class="text-muted">Send a message to begin helping this customer.</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <div class="customer-typing">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    Customer is typing...
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                    <textarea class="chat-input" id="chatInput" placeholder="Type your message..." rows="1"></textarea>
+                    <button class="chat-send-btn" id="chatSendBtn" onclick="sendAdminMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let adminChat = {
+    roomId: {{ chat_room.id }},
+    pollInterval: null,
+    lastMessageId: 0,
+    
+    init: function() {
+        this.setupEventListeners();
+        this.startPolling();
+        this.scrollToBottom();
+        this.markMessagesAsRead();
+    },
+    
+    setupEventListeners: function() {
+        const chatInput = document.getElementById('chatInput');
+        
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        
+        // Send on Enter (Shift+Enter for new line)
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendAdminMessage();
+            }
+        });
+    },
+    
+    startPolling: function() {
+        // Poll for new messages every 2 seconds
+        this.pollInterval = setInterval(() => {
+            this.loadMessages();
+        }, 2000);
+    },
+    
+    stopPolling: function() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+        }
+    },
+    
+    loadMessages: function() {
+        fetch(`/admin-panel/chat/api/messages/${this.roomId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.displayMessages(data.messages);
+                }
+            })
+            .catch(error => console.error('Error loading messages:', error));
+    },
+    
+    displayMessages: function(messages) {
+        const messagesContainer = document.getElementById('chatMessages');
+        
+        // Get current message IDs to avoid duplicates
+        const currentMessageIds = new Set();
+        messagesContainer.querySelectorAll('.message').forEach(msg => {
+            const hiddenDiv = msg.querySelector('[data-message-id]');
+            if (hiddenDiv) {
+                currentMessageIds.add(parseInt(hiddenDiv.dataset.messageId));
+            }
+        });
+        
+        // Only add new messages
+        messages.forEach(message => {
+            if (message.id > this.lastMessageId && !currentMessageIds.has(message.id)) {
+                this.addMessageToUI(message);
+                this.lastMessageId = message.id;
+            }
+        });
+        
+        this.scrollToBottom();
+    },
+    
+    addMessageToUI: function(message) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${message.is_admin ? 'admin-message' : 'customer-message'}`;
+        
+        let avatarContent = '';
+        
+        if (message.is_admin) {
+            // For admin messages, use admin profile picture or fallback
+            avatarContent = `
+                <div class="message-avatar-placeholder">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+            `;
+        } else {
+            // For customer messages, use customer profile picture or fallback
+            avatarContent = `
+                <div class="message-avatar-placeholder">
+                    ${message.sender_name.charAt(0).toUpperCase()}
+                </div>
+            `;
+        }
+        
+        messageElement.innerHTML = `
+            <div style="display: none;" data-message-id="${message.id}"></div>
+            <div class="message-avatar">
+                ${avatarContent}
+            </div>
+            <div class="message-content">
+                <div class="message-text">${this.escapeHtml(message.content)}</div>
+                <div class="message-time">${message.sender_name} • ${message.timestamp}</div>
+            </div>
+        `;
+        
+        messagesContainer.appendChild(messageElement);
+        
+        // Add animation for new message
+        messageElement.style.opacity = '0';
+        messageElement.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            messageElement.style.transition = 'all 0.3s ease';
+            messageElement.style.opacity = '1';
+            messageElement.style.transform = 'translateY(0)';
+        }, 10);
+    },
+    
+    escapeHtml: function(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+    
+    scrollToBottom: function() {
+        const messagesContainer = document.getElementById('chatMessages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    },
+    
+    markMessagesAsRead: function() {
+        // Mark messages as read when viewing
+        fetch(`/admin-panel/chat/api/messages/${this.roomId}/`)
+            .then(response => response.json())
+            .catch(error => console.error('Error marking messages as read:', error));
+    }
+};
+
+function sendAdminMessage() {
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    const content = chatInput.value.trim();
+    
+    if (!content) return;
+    
+    // Disable input while sending
+    chatInput.disabled = true;
+    chatSendBtn.disabled = true;
+    
+    fetch('/admin-panel/chat/api/send/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken(),
+        },
+        body: JSON.stringify({
+            room_id: adminChat.roomId,
+            content: content
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            // Add message to UI immediately for real-time feel
+            adminChat.addMessageToUI(data.message);
+            adminChat.lastMessageId = Math.max(adminChat.lastMessageId, data.message.id);
+            adminChat.scrollToBottom();
+        } else {
+            showAdminNotification('Error sending message: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error sending message:', error);
+        showAdminNotification('Error sending message. Please try again.', 'error');
+    })
+    .finally(() => {
+        chatInput.disabled = false;
+        chatSendBtn.disabled = false;
+        chatInput.focus();
+    });
+}
+
+function getCsrfToken() {
+    // Try multiple methods to get CSRF token
+    let token = '';
+    
+    // Method 1: From form input
+    const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfInput && csrfInput.value) {
+        token = csrfInput.value;
+    }
+    
+    // Method 2: From meta tag
+    if (!token) {
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag && metaTag.getAttribute('content')) {
+            token = metaTag.getAttribute('content');
+        }
+    }
+    
+    // Method 3: From cookies
+    if (!token) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken' && value) {
+                token = value;
+                break;
+            }
+        }
+    }
+    
+    return token;
+}
+
+// Initialize admin chat
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial last message ID from existing messages
+    const existingMessages = document.querySelectorAll('.message [data-message-id]');
+    if (existingMessages.length > 0) {
+        const lastMessage = existingMessages[existingMessages.length - 1];
+        adminChat.lastMessageId = parseInt(lastMessage.dataset.messageId) || 0;
+    }
+    
+    adminChat.init();
+});
+
+// Cleanup
+window.addEventListener('beforeunload', function() {
+    adminChat.stopPolling();
+});
+</script>
+{% endblock %}

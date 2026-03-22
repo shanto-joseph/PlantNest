@@ -1,0 +1,705 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Video Gallery - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.video-page-container {
+    background: linear-gradient(135deg, var(--nyanza) 0%, #f8f9fa 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.page-heading {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.page-heading h1 {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.page-heading p {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+
+
+.sidebar {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+    margin-bottom: 2rem;
+}
+
+.sidebar-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.filter-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--celadon-2);
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.filter-title {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: 0.75rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.6rem 0.8rem 0.6rem 2.2rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.search-input:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+    background: white;
+    outline: none;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--sea-green);
+    font-size: 0.9rem;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    background: white;
+    color: var(--dartmouth-green);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    border-color: var(--sea-green);
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+}
+
+.clear-filters {
+    background: transparent;
+    color: #6c757d;
+    border: 1px solid #6c757d;
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 0.75rem;
+}
+
+.clear-filters:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.video-main {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+}
+
+.video-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.video-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.8rem;
+}
+
+.results-count {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.create-video-btn {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.create-video-btn:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.video-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.my-videos-btn, .all-videos-btn {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border: 2px solid var(--celadon-2);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.my-videos-btn:hover, .all-videos-btn:hover {
+    color: var(--sea-green);
+    text-decoration: none;
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+}
+
+.manage-videos-btn {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.manage-videos-btn:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.video-card {
+    background: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    border: 2px solid var(--celadon-2);
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-color: var(--sea-green);
+}
+
+.video-card-content {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.video-card-content:hover {
+    transform: scale(1.02);
+}
+
+.video-thumbnail {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    background-size: cover;
+    background-position: center;
+}
+
+.video-play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+}
+
+.video-card:hover .video-play-icon {
+    color: white;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.video-info {
+    padding: 1rem;
+}
+
+.video-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+}
+
+.video-card-title:hover {
+    color: var(--sea-green);
+}
+
+.video-author {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.video-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+.empty-state h4 {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-fade-up-delay {
+    animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+/* Video Modal Styles */
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-lg {
+    max-width: 800px;
+}
+
+.modal-content {
+    border-radius: 15px;
+    border: 2px solid var(--celadon-2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    border-radius: 13px 13px 0 0;
+}
+
+.modal-header .close {
+    color: white;
+    opacity: 0.8;
+}
+
+.modal-header .close:hover {
+    opacity: 1;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="video-page-container">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Left Sidebar -->
+            <div class="col-lg-3 col-md-4">
+                <div class="sidebar animate-fade-up-delay">
+                    <h5 class="sidebar-title">
+                        <i class="fas fa-filter"></i> Filter Videos
+                    </h5>
+                    
+                    <!-- Search -->
+                    <div class="filter-section">
+                        <h6 class="filter-title">Search</h6>
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" placeholder="Search videos..." 
+                                   id="searchInput">
+                        </div>
+                    </div>
+                    
+                    <!-- Manage Videos -->
+                    {% if user.is_authenticated %}
+                    <div class="filter-section">
+                        <h6 class="filter-title">Manage Your Content</h6>
+                        <a href="{% url 'customer_interaction:my_video_posts' %}" class="manage-videos-btn">
+                            <i class="fas fa-cog"></i> Manage My Videos
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Sort -->
+                    <div class="filter-section">
+                        <h6 class="filter-title">Sort By</h6>
+                        <select class="filter-select" id="sortSelect">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="title">By Title</option>
+                        </select>
+                    </div>
+                    
+                    <button class="clear-filters" onclick="clearAllFilters()">
+                        <i class="fas fa-times"></i> Clear All Filters
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9 col-md-8">
+                <div class="video-main">
+                    <!-- Page Heading -->
+                    <div class="page-heading mb-4">
+                        <h1 class="display-5">
+                            <i class="fas fa-video"></i> Video Gallery
+                        </h1>
+                        <p class="text-muted">Watch and learn with our collection of gardening videos</p>
+                    </div>
+                    
+                    <!-- Video Header -->
+                    <div class="video-header">
+                        <div>
+                            <h2 class="video-title">
+                                <i class="fas fa-film"></i> All Videos
+                            </h2>
+                            <div class="results-count">
+                                <span id="resultsCount">{{ video_posts.count }}</span> video{{ video_posts.count|pluralize }} found
+                            </div>
+                        </div>
+                        {% if user.is_authenticated %}
+                        <div class="video-actions">
+                            <a href="{% url 'customer_interaction:my_video_posts' %}" class="my-videos-btn">
+                                <i class="fas fa-cog"></i> Manage Videos
+                            </a>
+                            <a href="{% url 'customer_interaction:create_video_post' %}" class="create-video-btn">
+                                <i class="fas fa-plus"></i> Upload Video
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if video_posts %}
+                        <div class="video-grid" id="videoGrid">
+                            {% for post in video_posts %}
+                            <div class="video-card searchable-item" 
+                                data-title="{{ post.title|lower }}" 
+                                data-date="{{ post.created_at|date:'Y-m-d' }}">
+                                <div class="video-card-content" onclick="playVideo('{{ post.id }}', '{{ post.title|escapejs }}', '{% if post.video_url %}{{ post.video_url }}{% elif post.video_file %}{{ post.video_file.url }}{% else %}#{% endif %}', '{% if post.video_file %}file{% else %}url{% endif %}')">
+                                    <div class="video-thumbnail" style="{% if post.thumbnail %}background-image: url('{{ post.thumbnail.url }}');{% else %}background: linear-gradient(135deg, var(--celadon-2) 0%, var(--nyanza) 100%);{% endif %}">
+                                        <i class="fas fa-play-circle video-play-icon"></i>
+                                    </div>
+                                    <div class="video-info">
+                                        <h5 class="video-card-title">{{ post.title }}</h5>
+                                        <p class="video-author">By {{ post.author.username }}</p>
+                                        <p class="video-date">{{ post.created_at|date:"F d, Y" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-video-slash"></i>
+                            </div>
+                            <h4>No videos available yet</h4>
+                            <p>Check back later for inspiring video content from our community!</p>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'customer_interaction:create_video_post' %}" class="create-video-btn">
+                                    <i class="fas fa-plus"></i> Upload a Video
+                                </a>
+                            {% else %}
+                                <a href="{% url 'user_management:login' %}" class="create-video-btn">
+                                    <i class="fas fa-sign-in-alt"></i> Login to Upload
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalLabel">Video Player</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="video-container">
+                    <div id="videoPlayer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchableItems = document.querySelectorAll('.searchable-item');
+    
+    searchInput.addEventListener('input', function() {
+        filterVideos();
+    });
+    
+
+    
+    // Sort functionality
+    const sortSelect = document.getElementById('sortSelect');
+    sortSelect.addEventListener('change', function() {
+        const sortValue = this.value;
+        const grid = document.getElementById('videoGrid');
+        const items = Array.from(grid.children).filter(item => item.style.display !== 'none');
+        
+        items.sort((a, b) => {
+            switch(sortValue) {
+                case 'title':
+                    return a.dataset.title.localeCompare(b.dataset.title);
+                case 'oldest':
+                    return new Date(a.dataset.date) - new Date(b.dataset.date);
+                default: // newest
+                    return new Date(b.dataset.date) - new Date(a.dataset.date);
+            }
+        });
+        
+        items.forEach(item => grid.appendChild(item));
+    });
+    
+    function filterVideos() {
+        const searchTerm = searchInput.value.toLowerCase();
+        let visibleCount = 0;
+        
+        searchableItems.forEach(item => {
+            const title = item.dataset.title;
+            
+            if (title.includes(searchTerm)) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update results count
+        document.getElementById('resultsCount').textContent = visibleCount;
+    }
+});
+
+function clearAllFilters() {
+    // Reset search
+    document.getElementById('searchInput').value = '';
+    
+    // Reset sort
+    document.getElementById('sortSelect').value = 'newest';
+    
+    // Show all videos
+    document.querySelectorAll('.searchable-item').forEach(item => {
+        item.style.display = '';
+    });
+    
+    // Update count
+    document.getElementById('resultsCount').textContent = document.querySelectorAll('.searchable-item').length;
+}
+
+function playVideo(videoId, title, videoUrl, videoType) {
+    if (!videoUrl || videoUrl === '#') {
+        alert('No video available for this post.');
+        return;
+    }
+    
+    // Stop any currently playing video
+    stopCurrentVideo();
+    
+    // Update modal title
+    document.getElementById('videoModalLabel').textContent = title;
+    
+    const videoPlayer = document.getElementById('videoPlayer');
+    
+    if (videoType === 'file') {
+        // For uploaded video files, use HTML5 video player
+        const videoHTML = `
+            <video controls style="width: 100%; height: 400px; border-radius: 8px;" id="currentVideoPlayer">
+                <source src="${videoUrl}" type="video/mp4">
+                <source src="${videoUrl}" type="video/webm">
+                <source src="${videoUrl}" type="video/ogg">
+                Your browser does not support the video tag.
+            </video>
+        `;
+        videoPlayer.innerHTML = videoHTML;
+        window.currentVideoElement = document.getElementById('currentVideoPlayer');
+    } else {
+        // For URL videos (YouTube, Vimeo, etc.), use iframe
+        let embedUrl = videoUrl;
+        if (videoUrl.includes('youtube.com/watch')) {
+            const videoIdMatch = videoUrl.split('v=')[1];
+            if (videoIdMatch) {
+                const videoId = videoIdMatch.split('&')[0];
+                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+        } else if (videoUrl.includes('youtu.be/')) {
+            const videoId = videoUrl.split('youtu.be/')[1];
+            if (videoId) {
+                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+        }
+        
+        const iframeHTML = `<iframe src="${embedUrl}" width="100%" height="400" frameborder="0" allowfullscreen id="currentVideoFrame"></iframe>`;
+        videoPlayer.innerHTML = iframeHTML;
+        window.currentVideoElement = document.getElementById('currentVideoFrame');
+    }
+    
+    // Show the modal
+    $('#videoModal').modal('show');
+}
+
+function stopCurrentVideo() {
+    if (window.currentVideoElement) {
+        if (window.currentVideoElement.tagName === 'VIDEO') {
+            window.currentVideoElement.pause();
+            window.currentVideoElement.currentTime = 0;
+        } else if (window.currentVideoElement.tagName === 'IFRAME') {
+            // For iframes, we need to reload the src to stop the video
+            const src = window.currentVideoElement.src;
+            window.currentVideoElement.src = '';
+            // Small delay to ensure the video stops
+            setTimeout(() => {
+                if (window.currentVideoElement) {
+                    window.currentVideoElement.src = src;
+                }
+            }, 100);
+        }
+        window.currentVideoElement = null;
+    }
+}
+
+// Clear iframe source when modal is hidden to stop video
+$('#videoModal').on('hidden.bs.modal', function () {
+    stopCurrentVideo();
+    document.getElementById('videoPlayer').innerHTML = '';
+});
+
+// Also stop video when modal is being hidden (before animation completes)
+$('#videoModal').on('hide.bs.modal', function () {
+    stopCurrentVideo();
+});
+</script>
+{% endblock %}

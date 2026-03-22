@@ -1,0 +1,590 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Share Your Story - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.create-blog-container {
+    background: linear-gradient(135deg, var(--nyanza) 0%, #f8f9fa 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.page-header {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+    text-align: center;
+}
+
+.page-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.page-subtitle {
+    color: #6c757d;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.form-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--celadon-2);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.section-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+}
+
+.section-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.form-label.required::after {
+    content: ' *';
+    color: #dc3545;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    font-family: inherit;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--sea-green);
+    background: white;
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+    transform: translateY(-2px);
+}
+
+.form-textarea {
+    min-height: 200px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 1rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 3rem;
+}
+
+.character-counter {
+    text-align: right;
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.character-counter.warning {
+    color: #f59e0b;
+}
+
+.character-counter.danger {
+    color: #dc3545;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--celadon-2);
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(64, 145, 108, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(64, 145, 108, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border: 2px solid var(--celadon-2);
+}
+
+.btn-secondary:hover {
+    background: var(--nyanza);
+    border-color: var(--sea-green);
+    color: var(--sea-green);
+    text-decoration: none;
+}
+
+.tips-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+}
+
+.tips-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    color: var(--dartmouth-green);
+}
+
+.tips-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.tips-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.tip-item {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: var(--nyanza);
+    border-radius: 12px;
+    border-left: 4px solid var(--sea-green);
+    transition: all 0.3s ease;
+}
+
+.tip-item:hover {
+    background: white;
+    transform: translateX(4px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.tip-title {
+    font-weight: 600;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.25rem;
+}
+
+.tip-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.guidelines-card {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 2px solid #f39c12;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.guidelines-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: #92400e;
+}
+
+.guidelines-icon {
+    width: 32px;
+    height: 32px;
+    background: #f59e0b;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.guidelines-title {
+    font-weight: 700;
+    margin: 0;
+}
+
+.guidelines-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.guideline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    color: #92400e;
+}
+
+.guideline-icon {
+    color: #f59e0b;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .create-blog-container {
+        padding: 1rem 0;
+    }
+    
+    .page-header {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-container {
+        padding: 2rem 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .tips-card {
+        position: static;
+        margin-top: 2rem;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-blog-container">
+    <div class="container-fluid">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-pen-fancy"></i> Share Your Story
+            </h1>
+            <p class="page-subtitle">Inspire fellow gardeners with your experiences, tips, and gardening journey</p>
+        </div>
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'customer_interaction:blog_list' %}">Blog</a></li>
+                <li class="breadcrumb-item active">Create Post</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="form-container">
+                    <form method="post" enctype="multipart/form-data" id="blogForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <h3 class="section-title">Basic Information</h3>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.title.id_for_label }}" class="form-label required">Post Title</label>
+                                <input type="text" 
+                                       id="{{ form.title.id_for_label }}" 
+                                       name="title" 
+                                       class="form-input" 
+                                       placeholder="Enter an engaging title for your blog post"
+                                       maxlength="200"
+                                       required>
+                                <div class="character-counter" id="titleCounter">0/200 characters</div>
+                                {% if form.title.errors %}
+                                    <div class="text-danger mt-2">{{ form.title.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.category.id_for_label }}" class="form-label required">Category</label>
+                                <select id="{{ form.category.id_for_label }}" 
+                                        name="category" 
+                                        class="form-input form-select" 
+                                        required>
+                                    <option value="">Choose a category</option>
+                                    <option value="tips">Gardening Tips</option>
+                                    <option value="diy">DIY Projects</option>
+                                    <option value="sustainability">Sustainability</option>
+                                    <option value="plant_care">Plant Care</option>
+                                    <option value="seasonal">Seasonal Gardening</option>
+                                    <option value="community">Community Stories</option>
+                                    <option value="experience">My Experience</option>
+                                </select>
+                                {% if form.category.errors %}
+                                    <div class="text-danger mt-2">{{ form.category.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Content Section -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <h3 class="section-title">Your Story</h3>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.content.id_for_label }}" class="form-label required">Content</label>
+                                <textarea id="{{ form.content.id_for_label }}" 
+                                          name="content" 
+                                          class="form-input form-textarea" 
+                                          placeholder="Share your gardening story, tips, or experiences. Be detailed and helpful to inspire other gardeners!"
+                                          required></textarea>
+                                <div class="character-counter" id="contentCounter">0 characters</div>
+                                {% if form.content.errors %}
+                                    <div class="text-danger mt-2">{{ form.content.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                                Publish Post
+                            </button>
+                            <a href="{% url 'customer_interaction:blog_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Guidelines -->
+                <div class="guidelines-card">
+                    <div class="guidelines-header">
+                        <div class="guidelines-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <h4 class="guidelines-title">Publishing Guidelines</h4>
+                    </div>
+                    <ul class="guidelines-list">
+                        <li class="guideline-item">
+                            <i class="fas fa-check guideline-icon"></i>
+                            <span>Your post will be published immediately and visible to all users</span>
+                        </li>
+                        <li class="guideline-item">
+                            <i class="fas fa-check guideline-icon"></i>
+                            <span>Please ensure your content is original and helpful to the community</span>
+                        </li>
+                        <li class="guideline-item">
+                            <i class="fas fa-check guideline-icon"></i>
+                            <span>Include practical tips and personal experiences</span>
+                        </li>
+                        <li class="guideline-item">
+                            <i class="fas fa-check guideline-icon"></i>
+                            <span>Be respectful and constructive in your sharing</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="tips-card">
+                    <div class="tips-header">
+                        <div class="tips-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 class="tips-title">Writing Tips</h3>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Engaging Title</div>
+                        <div class="tip-description">Use descriptive words that capture attention and clearly indicate what readers will learn</div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-title">Personal Touch</div>
+                        <div class="tip-description">Share your own experiences, both successes and lessons learned from failures</div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-title">Practical Advice</div>
+                        <div class="tip-description">Include step-by-step instructions, specific tips, and actionable advice</div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-title">Clear Structure</div>
+                        <div class="tip-description">Use paragraphs and organize your thoughts in a logical flow</div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-title">Be Helpful</div>
+                        <div class="tip-description">Focus on what would genuinely benefit other gardeners and plant enthusiasts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Character counting
+    const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+    const contentInput = document.getElementById('{{ form.content.id_for_label }}');
+    const titleCounter = document.getElementById('titleCounter');
+    const contentCounter = document.getElementById('contentCounter');
+    
+    function updateCounter(input, counter, maxLength = null) {
+        const count = input.value.length;
+        if (maxLength) {
+            counter.textContent = `${count}/${maxLength} characters`;
+            if (count > maxLength * 0.9) {
+                counter.className = 'character-counter danger';
+            } else if (count > maxLength * 0.8) {
+                counter.className = 'character-counter warning';
+            } else {
+                counter.className = 'character-counter';
+            }
+        } else {
+            counter.textContent = `${count} characters`;
+        }
+    }
+    
+    titleInput.addEventListener('input', () => updateCounter(titleInput, titleCounter, 200));
+    contentInput.addEventListener('input', () => updateCounter(contentInput, contentCounter));
+    
+    // Form validation
+    const form = document.getElementById('blogForm');
+    form.addEventListener('submit', function(e) {
+        const title = titleInput.value.trim();
+        const content = contentInput.value.trim();
+        const category = document.getElementById('{{ form.category.id_for_label }}').value;
+        
+        if (title.length < 1) {
+            e.preventDefault();
+            alert('Please enter a title with at least a characters.');
+            titleInput.focus();
+            return;
+        }
+        
+        if (!category) {
+            e.preventDefault();
+            alert('Please select a category for your post.');
+            document.getElementById('{{ form.category.id_for_label }}').focus();
+            return;
+        }
+        
+        if (content.length < 1) {
+            e.preventDefault();
+            alert('Please write at least a characters for your blog content.');
+            contentInput.focus();
+            return;
+        }
+    });
+});
+</script>
+{% endblock %}

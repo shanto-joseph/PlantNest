@@ -1,0 +1,159 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Card Payment - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.payment-container {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem;
+    margin: 2rem auto;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.payment-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.payment-icon {
+    font-size: 3rem;
+    color: var(--sea-green);
+    margin-bottom: 1rem;
+}
+
+.demo-notice {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    border: 2px solid var(--celadon-2);
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+
+.form-control:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+}
+
+.btn-pay {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-pay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="payment-container">
+        <div class="payment-header">
+            <div class="payment-icon">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <h2>Card Payment (Demo)</h2>
+        </div>
+        
+        <div class="demo-notice">
+            <h6><i class="fas fa-info-circle"></i> Demo Mode</h6>
+            <p class="mb-0">This is a demo payment. Use any 16-digit number for testing.</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Card Number</label>
+                <input type="text" name="card_number" class="form-control" 
+                       placeholder="1234 5678 9012 3456" 
+                       pattern="[0-9\s]{13,19}" 
+                       maxlength="19" required>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="text" name="card_expiry" class="form-control" 
+                               placeholder="MM/YY" 
+                               pattern="[0-9]{2}/[0-9]{2}" 
+                               maxlength="5" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="text" name="card_cvv" class="form-control" 
+                               placeholder="123" 
+                               pattern="[0-9]{3,4}" 
+                               maxlength="4" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Cardholder Name</label>
+                <input type="text" name="card_name" class="form-control" 
+                       placeholder="John Doe" required>
+            </div>
+            
+            <button type="submit" class="btn-pay">
+                <i class="fas fa-lock"></i> Pay ₹{{ checkout_data.total_amount }}
+            </button>
+            
+            <div class="text-center mt-3">
+                <a href="{% url 'order_payment:checkout' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Checkout
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Format card number input
+document.querySelector('input[name="card_number"]').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+    e.target.value = formattedValue;
+});
+
+// Format expiry date
+document.querySelector('input[name="card_expiry"]').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    e.target.value = value;
+});
+
+// Format CVV
+document.querySelector('input[name="card_cvv"]').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+});
+</script>
+{% endblock %}

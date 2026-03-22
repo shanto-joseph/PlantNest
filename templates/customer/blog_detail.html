@@ -1,0 +1,587 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary-font: 'Poppins', sans-serif;
+    --secondary-font: 'Lora', serif;
+    --text-color: #555;
+    --heading-color: #2c3e50;
+    --primary-color: #4CAF50;
+    --light-gray: #f9f9f9;
+    --border-color: #e0e0e0;
+}
+
+body {
+    font-family: var(--primary-font);
+    color: var(--text-color);
+    line-height: 1.7;
+}
+
+.blog-detail-hero {
+    color: white;
+    padding: 1rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.blog-detail-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.breadcrumb-custom .breadcrumb-item a {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.breadcrumb-custom .breadcrumb-item a:hover {
+    color: white;
+}
+
+.breadcrumb-custom .breadcrumb-item.active {
+    color: white;
+    font-weight: 500;
+}
+
+.article-container {
+    background: white;
+    border-radius: 15px;
+    padding: 3rem;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+    margin-top: 2rem; 
+    position: relative;
+    z-index: 2;
+}
+
+.article-title {
+    font-family: var(--secondary-font);
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--heading-color);
+    margin-bottom: 1.5rem;
+}
+
+.article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.meta-item i {
+    color: var(--primary-color);
+}
+
+.category-badge {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.featured-image {
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.featured-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.article-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.article-content h2, .article-content h3 {
+    font-family: var(--secondary-font);
+    color: var(--heading-color);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.article-content p {
+    margin-bottom: 1.5rem;
+}
+
+.article-content a {
+    color: var(--primary-color);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.article-content a:hover {
+    border-color: var(--primary-color);
+}
+
+.tags-section {
+    margin: 3rem 0;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.tags-section h6 {
+    font-weight: 600;
+    color: var(--heading-color);
+    margin-bottom: 1rem;
+}
+
+.tag {
+    display: inline-block;
+    background: var(--light-gray);
+    color: var(--text-color);
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    margin: 0.25rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.tag:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.article-actions {
+    margin: 3rem 0;
+    padding: 2rem;
+    background: var(--light-gray);
+    border-radius: 15px;
+    text-align: center;
+}
+
+.social-share h6 {
+    font-weight: 600;
+    color: var(--heading-color);
+    margin-bottom: 1.5rem;
+}
+
+.share-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.share-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    color: white;
+    border: none;
+}
+
+.share-btn i {
+    font-size: 1.1rem;
+}
+
+.share-btn.facebook { background-color: #1877f2; }
+.share-btn.twitter { background-color: #1da1f2; }
+.share-btn.linkedin { background-color: #0077b5; }
+.share-btn.copy { background-color: #6c757d; }
+
+.share-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    color: white;
+}
+
+.comments-section-wrapper {
+    margin-top: 4rem;
+    padding-top: 4rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.comments-section {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fdfdfd;
+    border-radius: 15px;
+    padding: 2.5rem;
+    border: 1px solid #eee;
+}
+
+.comments-header {
+    font-weight: 700;
+    color: var(--heading-color);
+    margin-bottom: 2.5rem;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.comment-form {
+    margin-bottom: 3rem;
+}
+
+.comment-form textarea {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.2rem;
+    resize: vertical;
+    min-height: 140px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    background: #fcfcfc;
+}
+
+.comment-form textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.2);
+    background: white;
+}
+
+.btn-comment {
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 0.9rem 3rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 1.5rem auto 0;
+}
+
+.btn-comment:hover {
+    background-color: #45a049;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+}
+
+.auth-prompt {
+    background: var(--light-gray);
+    border-radius: 10px;
+    padding: 2.5rem;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.comment {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.comment:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border-color: var(--primary-color);
+}
+
+.comment-avatar img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+}
+
+.comment-avatar .avatar-placeholder {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sea-green);
+    font-size: 1.5rem;
+    border: 3px solid var(--primary-color);
+}
+
+.comment-body {
+    flex: 1;
+}
+
+.comment-author {
+    font-weight: 700;
+    color: var(--heading-color);
+    margin-bottom: 0.3rem;
+}
+
+.comment-date {
+    font-size: 0.85rem;
+    color: #999;
+    margin-bottom: 1rem;
+}
+
+.comment-content {
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+
+.expert-badge {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+    color: #8b4513;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 992px) {
+    .article-container {
+        padding: 2rem;
+    }
+    .article-title {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .article-container {
+        padding: 1.5rem;
+    }
+    .article-title {
+        font-size: 1.8rem;
+    }
+    .article-meta {
+        gap: 1rem;
+    }
+    .comments-section {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function shareOnFacebook() {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+}
+
+function shareOnTwitter() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(document.title);
+    window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank', 'width=600,height=400');
+}
+
+function shareOnLinkedIn() {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
+}
+
+function copyToClipboard(event) {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        const btn = event.target.closest('.share-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="blog-detail-hero">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'customer_interaction:blog_list' %}">Blog</a></li>
+                <li class="breadcrumb-item active">{{ post.title|truncatechars:50 }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <article class="article-container">
+                <h1 class="article-title">{{ post.title }}</h1>
+                
+                <div class="article-meta">
+                    <span class="category-badge">{{ post.get_category_display }}</span>
+                    <div class="meta-item">
+                        <i class="fas fa-user"></i>
+                        <span>
+                            {{ post.author.get_full_name|default:post.author.username }}
+                            {% if post.author.role.name|lower == 'admin' %}
+                                <span class="expert-badge"><i class="fas fa-star"></i> Expert</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>{{ post.created_at|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>5 min read</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-comments"></i>
+                        <span>{{ comments.count }} comment{{ comments.count|pluralize }}</span>
+                    </div>
+                </div>
+
+                {% if post.featured_image %}
+                <div class="featured-image">
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                </div>
+                {% endif %}
+                
+                <div class="article-content">
+                    {{ post.content|safe|linebreaks }}
+                </div>
+                
+                <div class="tags-section">
+                    <h6><i class="fas fa-tags"></i> Related Topics</h6>
+                    <div class="tags-container">
+                        <a href="#" class="tag">{{ post.get_category_display }}</a>
+                        <a href="#" class="tag">Gardening</a>
+                        <a href="#" class="tag">Plants</a>
+                        {% if post.author.role.name|lower == 'admin' %}
+                            <a href="#" class="tag">Expert Tips</a>
+                        {% else %}
+                            <a href="#" class="tag">Community</a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="article-actions">
+                    <div class="social-share">
+                        <h6>Enjoy this article? Share it with your friends!</h6>
+                        <div class="share-buttons">
+                            <a href="#" class="share-btn facebook" onclick="shareOnFacebook()">
+                                <i class="fab fa-facebook-f"></i> Facebook
+                            </a>
+                            <a href="#" class="share-btn twitter" onclick="shareOnTwitter()">
+                                <i class="fab fa-twitter"></i> Twitter
+                            </a>
+                            <a href="#" class="share-btn linkedin" onclick="shareOnLinkedIn()">
+                                <i class="fab fa-linkedin-in"></i> LinkedIn
+                            </a>
+                            <button class="share-btn copy" onclick="copyToClipboard(event)">
+                                <i class="fas fa-link"></i> Copy Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <div class="comments-section-wrapper">
+                <div class="comments-section">
+                    <h5 class="comments-header">
+                        <i class="fas fa-comments"></i>
+                        <span>Comments ({{ comments.count }})</span>
+                    </h5>
+                    
+                    {% if user.is_authenticated %}
+                    <div class="comment-form">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="form-group mb-3">
+                                {{ form.content }}
+                            </div>
+                            <button type="submit" class="btn btn-comment">
+                                <i class="fas fa-paper-plane"></i> Post Comment
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="auth-prompt">
+                        <h6>Join the Discussion</h6>
+                        <p>Log in or create an account to share your thoughts.</p>
+                        <a href="{% url 'user_management:login' %}" class="btn btn-primary w-100 mb-2">Login</a>
+                        <a href="{% url 'user_management:register' %}" class="btn btn-outline-primary w-100">Register</a>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="comments-list">
+                        {% for comment in comments %}
+                        <div class="comment">
+                            <div class="comment-avatar">
+                                {% if comment.user.profile_picture %}
+                                    <img src="{{ comment.user.profile_picture.url }}" alt="{{ comment.user.username }}'s profile image">
+                                {% else %}
+                                    <div class="avatar-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="comment-body">
+                                <div class="comment-author">
+                                    {{ comment.user.get_display_name }}
+                                    {% if comment.user.role.name|lower == 'admin' %}
+                                        <span class="expert-badge"><i class="fas fa-star"></i> Expert</span>
+                                    {% endif %}
+                                </div>
+                                <div class="comment-date">{{ comment.created_at|timesince }} ago</div>
+                                <div class="comment-content">{{ comment.content|linebreaks }}</div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                            <h6>No comments yet.</h6>
+                            <p class="text-muted">Be the first to share your thoughts!</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,682 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ user_obj.get_full_name|default:user_obj.username }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.view-user-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, var(--nyanza) 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.view-user-header {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.view-user-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.view-user-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.user-profile-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.user-profile-card:hover {
+    border-color: var(--sea-green);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.user-avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(64, 145, 108, 0.3);
+    border: 4px solid white;
+}
+
+.profile-info h2 {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.profile-info .text-muted {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.role-badge {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.role-admin {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+.role-customer {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-left: 1rem;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.info-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.info-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.info-section:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.section-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.section-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.info-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--nyanza);
+    border-radius: 12px;
+    border: 1px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.info-item:hover {
+    border-color: var(--sea-green);
+    background: white;
+    transform: translateX(5px);
+}
+
+.info-label {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-label i {
+    color: var(--sea-green);
+    width: 16px;
+}
+
+.info-value {
+    color: #333;
+    font-weight: 500;
+    text-align: right;
+}
+
+.action-buttons {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    text-align: center;
+}
+
+.action-buttons h5 {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.btn-group-custom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-action {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border-color: transparent;
+}
+
+.btn-edit:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(64, 145, 108, 0.4);
+}
+
+.btn-toggle {
+    background: transparent;
+    color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-toggle:hover {
+    background: #ffc107;
+    color: #212529;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.btn-delete {
+    background: transparent;
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-delete:hover {
+    background: #dc3545;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.btn-back {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border-color: var(--celadon-2);
+}
+
+.btn-back:hover {
+    background: var(--nyanza);
+    color: var(--sea-green);
+    text-decoration: none;
+    border-color: var(--sea-green);
+}
+
+.activity-timeline {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    margin-top: 2rem;
+}
+
+.timeline-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.timeline-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.timeline-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--nyanza);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--sea-green);
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover {
+    background: white;
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.timeline-item-icon {
+    width: 35px;
+    height: 35px;
+    background: var(--sea-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.timeline-content {
+    flex: 1;
+}
+
+.timeline-action {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-date {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .view-user-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .info-sections {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .btn-group-custom {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-action {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="view-user-container">
+    <div class="container-fluid">
+        <!-- Enhanced Header -->
+        <div class="view-user-header">
+            <div class="view-user-header-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-5 mb-2">
+                            <i class="fas fa-user-circle"></i> User Profile
+                        </h1>
+                        <p class="lead mb-0">View and manage user account details</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-right text-center mt-3 mt-lg-0">
+                        <a href="{% url 'admin_control:manage_users' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-arrow-left"></i> Back to Users
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Profile Card -->
+        <div class="user-profile-card">
+            <div class="profile-header">
+                <div class="user-avatar-large">
+                    {{ user_obj.first_name.0|default:user_obj.username.0|upper }}
+                </div>
+                <div class="profile-info flex-grow-1">
+                    <h2>{{ user_obj.get_full_name|default:user_obj.username }}</h2>
+                    <div class="text-muted">{{ user_obj.email }}</div>
+                    <div class="mt-2">
+                        <span class="role-badge role-{% if user_obj.is_admin %}admin{% else %}customer{% endif %}">
+                            <i class="fas fa-{% if user_obj.is_admin %}shield-alt{% else %}user{% endif %}"></i>
+                            {{ user_obj.role.name }}
+                        </span>
+                        <span class="status-badge status-{% if user_obj.is_active %}active{% else %}inactive{% endif %}">
+                            {% if user_obj.is_active %}
+                                <i class="fas fa-check-circle"></i> Active
+                            {% else %}
+                                <i class="fas fa-times-circle"></i> Inactive
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Sections -->
+        <div class="info-sections">
+            <!-- Account Information -->
+            <div class="info-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h5 class="section-title">Account Information</h5>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-at"></i> Username
+                        </div>
+                        <div class="info-value">{{ user_obj.username }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-envelope"></i> Email
+                        </div>
+                        <div class="info-value">{{ user_obj.email }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-user-tag"></i> Role
+                        </div>
+                        <div class="info-value">{{ user_obj.role.name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-toggle-on"></i> Status
+                        </div>
+                        <div class="info-value">
+                            {% if user_obj.is_active %}
+                                <span class="badge badge-success">Active</span>
+                            {% else %}
+                                <span class="badge badge-danger">Inactive</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Statistics -->
+            <div class="info-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h5 class="section-title">Activity Statistics</h5>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-shopping-bag"></i> Total Orders
+                        </div>
+                        <div class="info-value">
+                            <span class="badge badge-primary">{{ user_obj.orders.count }}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-star"></i> Reviews Written
+                        </div>
+                        <div class="info-value">
+                            <span class="badge badge-warning">{{ user_obj.reviews.count }}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-calendar-plus"></i> Member Since
+                        </div>
+                        <div class="info-value">{{ user_obj.date_joined|date:"M d, Y" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-clock"></i> Last Login
+                        </div>
+                        <div class="info-value">
+                            {% if user_obj.last_login %}
+                                {{ user_obj.last_login|timesince }} ago
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="info-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-address-card"></i>
+                    </div>
+                    <h5 class="section-title">Contact Details</h5>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-user"></i> Full Name
+                        </div>
+                        <div class="info-value">
+                            {% if user_obj.first_name or user_obj.last_name %}
+                                {{ user_obj.first_name }} {{ user_obj.last_name }}
+                            {% else %}
+                                <span class="text-muted">Not provided</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-phone"></i> Phone
+                        </div>
+                        <div class="info-value">
+                            {% if user_obj.phone_number %}
+                                {{ user_obj.phone_number }}
+                            {% else %}
+                                <span class="text-muted">Not provided</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-map-marker-alt"></i> Addresses
+                        </div>
+                        <div class="info-value">
+                            <span class="badge badge-info">{{ user_obj.addresses.count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <h5>
+                <i class="fas fa-tools"></i> Quick Actions
+            </h5>
+            <div class="btn-group-custom">
+                <a href="{% url 'admin_control:edit_user' user_obj.pk %}" class="btn-action btn-edit">
+                    <i class="fas fa-edit"></i> Edit User
+                </a>
+                <a href="{% url 'admin_control:toggle_user_status' user_obj.pk %}" class="btn-action btn-toggle">
+                    {% if user_obj.is_active %}
+                        <i class="fas fa-user-slash"></i> Deactivate
+                    {% else %}
+                        <i class="fas fa-user-check"></i> Activate
+                    {% endif %}
+                </a>
+                <a href="{% url 'admin_control:delete_user' user_obj.pk %}" class="btn-action btn-delete">
+                    <i class="fas fa-trash"></i> Delete User
+                </a>
+                <a href="{% url 'admin_control:manage_users' %}" class="btn-action btn-back">
+                    <i class="fas fa-list"></i> All Users
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activity Timeline -->
+        <div class="activity-timeline">
+            <div class="timeline-header">
+                <div class="timeline-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h5 class="timeline-title">Recent Activity</h5>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-item-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-action">Account Created</div>
+                    <div class="timeline-date">{{ user_obj.date_joined|date:"M d, Y g:i A" }}</div>
+                </div>
+            </div>
+            
+            {% if user_obj.last_login %}
+            <div class="timeline-item">
+                <div class="timeline-item-icon">
+                    <i class="fas fa-sign-in-alt"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-action">Last Login</div>
+                    <div class="timeline-date">{{ user_obj.last_login|date:"M d, Y g:i A" }}</div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if user_obj.orders.exists %}
+            <div class="timeline-item">
+                <div class="timeline-item-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-action">First Order Placed</div>
+                    <div class="timeline-date">{{ user_obj.orders.first.created_at|date:"M d, Y g:i A" }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

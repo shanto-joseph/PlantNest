@@ -1,0 +1,199 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Cancel Order - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.cancel-container {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem;
+    margin: 2rem auto;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    text-align: center;
+}
+
+.cancel-icon {
+    font-size: 4rem;
+    color: #e74c3c;
+    margin-bottom: 2rem;
+}
+
+.cancel-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.cancel-message {
+    color: #6c757d;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.order-info {
+    background: var(--nyanza);
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.order-number {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.order-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.order-items {
+    margin-top: 1rem;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--celadon-2);
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.cancel-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-cancel-confirm {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel-confirm:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+}
+
+.btn-keep-order {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border: 2px solid var(--celadon-2);
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-keep-order:hover {
+    color: var(--sea-green);
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+    text-decoration: none;
+}
+
+.warning-box {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    color: #856404;
+}
+
+.warning-box h6 {
+    color: #856404;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="hero-section mb-4">
+        <div class="text-center">
+            <h1 class="display-4"><i class="fas fa-times-circle"></i> Cancel Order</h1>
+            <p class="lead">Are you sure you want to cancel this order?</p>
+        </div>
+    </div>
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'order_payment:order_history' %}">Order History</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'order_payment:order_detail' order.id %}">{{ order.order_number }}</a></li>
+            <li class="breadcrumb-item active">Cancel Order</li>
+        </ol>
+    </nav>
+
+    <div class="cancel-container">
+        <div class="cancel-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        
+        <h2 class="cancel-title">Cancel Order</h2>
+        <p class="cancel-message">
+            Are you sure you want to cancel this order? This action cannot be undone.
+        </p>
+        
+        <div class="warning-box">
+            <h6><i class="fas fa-info-circle"></i> Important Information</h6>
+            <ul class="text-left mb-0">
+                <li>Your payment will be refunded within 5-7 business days</li>
+                <li>Items will be returned to stock</li>
+                <li>You will receive a cancellation confirmation email</li>
+            </ul>
+        </div>
+        
+        <div class="order-info">
+            <h5 class="order-number">Order {{ order.order_number }}</h5>
+            <div class="order-meta">
+                <i class="fas fa-calendar"></i> Placed: {{ order.created_at|date:"F d, Y" }}<br>
+                <i class="fas fa-credit-card"></i> Payment: {{ order.get_payment_method }}<br>
+                <i class="fas fa-rupee-sign"></i> Total: ₹{{ order.total_amount }}
+            </div>
+            
+            <div class="order-items">
+                <h6>Items in this order:</h6>
+                {% for item in order.items.all %}
+                <div class="order-item">
+                    <span>{{ item.product.name }} (x{{ item.quantity }})</span>
+                    <span>₹{{ item.total_price }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <form method="post" class="cancel-actions">
+            {% csrf_token %}
+            <a href="{% url 'order_payment:order_detail' order.id %}" class="btn-keep-order">
+                <i class="fas fa-arrow-left"></i> Keep Order
+            </a>
+            <button type="submit" class="btn-cancel-confirm">
+                <i class="fas fa-times"></i> Cancel Order
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

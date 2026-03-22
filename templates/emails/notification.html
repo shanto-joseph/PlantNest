@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ notification.title }} - {{ site_name }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .email-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #d8f3dc;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d6a4f;
+            margin-bottom: 10px;
+        }
+        .notification-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 24px;
+        }
+        .notification-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d6a4f;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .notification-message {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .action-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px auto;
+            display: block;
+            width: fit-content;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .priority-urgent { border-left: 5px solid #dc3545; }
+        .priority-high { border-left: 5px solid #ffc107; }
+        .priority-medium { border-left: 5px solid #17a2b8; }
+        .priority-low { border-left: 5px solid #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="email-container priority-{{ notification.priority }}">
+        <div class="header">
+            <div class="logo">
+                🌱 {{ site_name }}
+            </div>
+        </div>
+        
+        <div class="notification-icon">
+            {% if notification.notification_type == 'order_confirmed' %}🛒
+            {% elif notification.notification_type == 'order_shipped' %}🚚
+            {% elif notification.notification_type == 'order_delivered' %}📦
+            {% elif notification.notification_type == 'blog_approved' %}👍
+            {% elif notification.notification_type == 'blog_rejected' %}✏️
+            {% elif notification.notification_type == 'support_replied' %}💬
+            {% elif notification.notification_type == 'welcome' %}👋
+            {% else %}🔔{% endif %}
+        </div>
+        
+        <h1 class="notification-title">{{ notification.title }}</h1>
+        
+        <div class="notification-message">
+            <p>Hi {{ user.get_full_name|default:user.username }},</p>
+            <p>{{ notification.message }}</p>
+        </div>
+        
+        {% if notification.action_url %}
+        <a href="{{ notification.action_url }}" class="action-button">
+            View Details
+        </a>
+        {% endif %}
+        
+        <div class="footer">
+            <p>This email was sent from {{ site_name }}.</p>
+            <p>If you no longer wish to receive these notifications, you can update your preferences in your account settings.</p>
+            <p>&copy; 2024 {{ site_name }}. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

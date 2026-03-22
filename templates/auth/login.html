@@ -1,0 +1,466 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Login - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(158deg, #e9ecef 0%, #155724bf 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.login-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+    margin: 0;
+}
+
+.login-left {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-left::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.login-right {
+    padding: 2rem 2.5rem;
+}
+
+.brand-logo {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--celadon);
+}
+
+.welcome-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.welcome-subtitle {
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+.feature-list li {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+}
+
+.feature-list i {
+    margin-right: 0.5rem;
+    color: var(--celadon);
+}
+
+.login-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.form-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--dartmouth-green);
+}
+
+.form-title h2 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-control:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+    background: white;
+    transform: translateY(-2px);
+}
+
+.form-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 2;
+}
+
+.btn-login {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    width: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(64, 145, 108, 0.3);
+}
+
+.btn-login::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-login:hover::before {
+    left: 100%;
+}
+
+.divider {
+    text-align: center;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e9ecef;
+}
+
+.divider span {
+    background: white;
+    padding: 0 1rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.register-link {
+    text-align: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}
+
+.register-link a {
+    color: var(--dartmouth-green);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.register-link a:hover {
+    color: var(--sea-green);
+}
+
+.floating-elements {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.floating-element {
+    position: absolute;
+    opacity: 0.1;
+    animation: float-up 15s infinite linear;
+}
+
+.floating-element:nth-child(1) { left: 10%; animation-delay: 0s; }
+.floating-element:nth-child(2) { left: 20%; animation-delay: 2s; }
+.floating-element:nth-child(3) { left: 30%; animation-delay: 4s; }
+.floating-element:nth-child(4) { left: 40%; animation-delay: 6s; }
+.floating-element:nth-child(5) { left: 50%; animation-delay: 8s; }
+
+@keyframes float-up {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+    }
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .login-container {
+        margin: 1rem;
+    }
+    
+    .login-left {
+        padding: 2rem;
+    }
+    
+    .login-right {
+        padding: 2rem;
+    }
+    
+    .welcome-text {
+        font-size: 1.3rem;
+    }
+    
+    .brand-logo {
+        font-size: 2rem;
+    }
+}
+
+/* Add these new styles */
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 350px;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    z-index: 1050;
+    transform: translateX(120%);
+    transition: transform 0.3s ease-in-out;
+    border-left: 4px solid;
+}
+
+.custom-notification.show {
+    transform: translateX(0);
+}
+
+.custom-notification.warning {
+    border-left-color: var(--sea-green);
+}
+
+.custom-notification.danger {
+    border-left-color: #dc3545;
+}
+
+.custom-notification .notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.custom-notification .notification-icon {
+    font-size: 1.5rem;
+    color: var(--dartmouth-green);
+}
+
+.custom-notification .notification-message {
+    color: #2c3e50;
+    font-size: 0.95rem;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.custom-notification .notification-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+}
+
+.custom-notification .notification-close:hover {
+    color: #2c3e50;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<body class="login-body">
+    <div class="floating-elements">
+        <i class="fas fa-leaf floating-element fa-2x"></i>
+        <i class="fas fa-seedling floating-element fa-2x"></i>
+        <i class="fas fa-tree floating-element fa-2x"></i>
+        <i class="fas fa-flower floating-element fa-2x"></i>
+        <i class="fas fa-spa floating-element fa-2x"></i>
+    </div>
+    
+    <div class="login-page" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 0;">
+        <div class="login-container" style="box-shadow: 0 8px 32px rgba(0,0,0,0.12); margin: 0;">
+            <div class="row no-gutters h-100">
+                <div class="col-lg-6 login-left">
+                    <div class="brand-logo">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h1 class="welcome-text">Welcome Back!</h1>
+                    <p class="welcome-subtitle">Sign in to continue your gardening journey</p>
+                    
+                    <ul class="feature-list">
+                        <li><i class="fas fa-seedling"></i> Access your plant collection</li>
+                        <li><i class="fas fa-shopping-cart"></i> Track your orders</li>
+                        <li><i class="fas fa-users"></i> Join community discussions</li>
+                        <li><i class="fas fa-book-open"></i> Read expert gardening tips</li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-6 login-right" style="padding: 2rem 2.5rem;">
+                    <div class="login-form">
+                        <div class="form-title">
+                            <h2>Sign In</h2>
+                            <p class="text-muted">Enter your credentials to access your account</p>
+                        </div>
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="form-group">
+                                <i class="fas fa-user form-icon"></i>
+                                <input type="text" class="form-control" name="username" placeholder="Username" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <i class="fas fa-lock form-icon"></i>
+                                <input type="password" class="form-control" name="password" placeholder="Password" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-login">
+                                <i class="fas fa-sign-in-alt"></i> Sign In
+                            </button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'user_management:forgot_password' %}" class="text-primary">Forgot password?</a>
+                        </div>
+                        
+                        <div class="divider">
+                            <span>New to Plant Store?</span>
+                        </div>
+                        
+                        <div class="register-link">
+                            <p class="mb-0">Don't have an account? 
+                                <a href="{% url 'user_management:register' %}">Create one here</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get messages from Django backend
+    var messages = [];
+    {% for message in messages %}
+        messages.push({
+            'text': "{{ message|escapejs }}",
+            'tags': "{{ message.tags|escapejs }}"
+        });
+    {% endfor %}
+    
+    // Show messages based on type
+    messages.forEach(function(msg) {
+        if (msg.text) {
+            if (msg.text.toLowerCase().includes('password') || msg.text.toLowerCase().includes('credentials')) {
+                // Show password-specific error in a warning style
+                showNotification('Incorrect username orpassword. Please try again.', 'warning');
+            } else {
+                // Show other errors in danger style
+                showNotification(msg.text, msg.tags === 'error' ? 'danger' : msg.tags);
+            }
+        }
+    });
+});
+
+// Add notification helper function if not already defined
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '1050';
+    notification.style.maxWidth = '350px';
+    
+    // Add content
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    // Add to document
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 150);
+    }, 5000);
+}
+</script>
+{% endblock %}
+
+<style>
+.login-body .footer { display: none; }
+.login-page { padding: 0 !important; }
+.login-container { margin: 0 !important; }
+.navbar { margin-bottom: 0 !important; }
+</style>

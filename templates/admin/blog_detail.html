@@ -1,0 +1,342 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.blog-detail-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, var(--nyanza) 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.blog-detail-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.blog-header {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 3rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.blog-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.blog-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.blog-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.blog-meta {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 1.5rem;
+    opacity: 0.9;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.meta-item i {
+    font-size: 1.1rem;
+}
+
+.blog-content-wrapper {
+    padding: 3rem 2rem;
+}
+
+.blog-content {
+    color: #333;
+    line-height: 1.8;
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.blog-content p {
+    margin-bottom: 1.5rem;
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4,
+.blog-content h5,
+.blog-content h6 {
+    color: var(--dartmouth-green);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.blog-content ul,
+.blog-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+}
+
+.blog-content li {
+    margin-bottom: 0.5rem;
+}
+
+.blog-content blockquote {
+    border-left: 4px solid var(--sea-green);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-style: italic;
+    color: #555;
+}
+
+.blog-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 2rem 0;
+}
+
+.blog-content code {
+    background: var(--nyanza);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+    color: var(--dartmouth-green);
+}
+
+.blog-content pre {
+    background: var(--nyanza);
+    padding: 1.5rem;
+    border-radius: 10px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+}
+
+.blog-content pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.category-badge {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.comments-section {
+    background: #f8f9fa;
+    padding: 3rem 2rem;
+    border-top: 2px solid var(--celadon-2);
+}
+
+.comments-header {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.8rem;
+}
+
+.comment-card {
+    background: white;
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.comment-card:hover {
+    border-color: var(--sea-green);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--celadon-2);
+}
+
+.comment-author {
+    font-weight: 700;
+    color: var(--dartmouth-green);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.comment-date {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.comment-content {
+    color: #333;
+    line-height: 1.6;
+}
+
+.empty-comments {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: white;
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    color: #6c757d;
+}
+
+.back-button {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    margin-bottom: 2rem;
+}
+
+.back-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    color: white;
+    text-decoration: none;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .blog-title {
+        font-size: 1.8rem;
+    }
+
+    .blog-meta {
+        gap: 1rem;
+    }
+
+    .blog-content-wrapper,
+    .comments-section {
+        padding: 2rem 1rem;
+    }
+
+    .blog-content {
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="blog-detail-container">
+    <div class="container">
+        <a href="{% url 'admin_control:manage_content' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Content Management
+        </a>
+
+        <div class="blog-detail-card">
+            <div class="blog-header">
+                <div class="blog-header-content">
+                    <div class="category-badge">
+                        {{ post.get_category_display }}
+                    </div>
+                    <h1 class="blog-title">{{ post.title }}</h1>
+                    <div class="blog-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-user"></i>
+                            <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>{{ post.created_at|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-comments"></i>
+                            <span>{{ comments.count }} Comment{{ comments.count|pluralize }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="blog-content-wrapper">
+                <div class="blog-content">
+                    {{ post.content|safe }}
+                </div>
+            </div>
+
+            <div class="comments-section">
+                <div class="container">
+                    <h3 class="comments-header">
+                        <i class="fas fa-comments"></i>
+                        Comments ({{ comments.count }})
+                    </h3>
+
+                    {% if comments %}
+                        {% for comment in comments %}
+                        <div class="comment-card">
+                            <div class="comment-header">
+                                <div class="comment-author">
+                                    <i class="fas fa-user-circle"></i>
+                                    {{ comment.user.get_full_name|default:comment.user.username }}
+                                </div>
+                                <div class="comment-date">
+                                    {{ comment.created_at|date:"M d, Y" }}
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                {{ comment.content }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-comments">
+                            <i class="fas fa-comments fa-3x mb-3" style="color: var(--celadon-2);"></i>
+                            <p>No comments yet. Be the first to share your thoughts!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1203 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}
+    Admin Profile - {{ user.username }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-page-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, var(--nyanza) 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.profile-hero {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.profile-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.profile-main-card {
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+.profile-header {
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    padding: 2.5rem;
+    text-align: center;
+    position: relative;
+}
+
+.profile-avatar-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 6px solid white;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05);
+}
+
+.profile-avatar-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3.5rem;
+    font-weight: 700;
+    border: 6px solid white;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.profile-avatar-placeholder:hover {
+    transform: scale(1.05);
+}
+
+.avatar-upload-overlay {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: var(--sea-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.avatar-upload-overlay:hover {
+    background: var(--dartmouth-green);
+    transform: scale(1.1);
+}
+
+.profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.5rem;
+}
+
+.profile-role {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(64, 145, 108, 0.3);
+}
+
+.profile-email {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+}
+
+.stat-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.profile-content {
+    padding: 2.5rem;
+}
+
+.content-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 0.5rem;
+    margin-bottom: 2rem;
+    border: 2px solid var(--celadon-2);
+}
+
+.tab-button {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.tab-button.active {
+    background: white;
+    color: var(--dartmouth-green);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.form-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.form-section:hover {
+    border-color: var(--sea-green);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.section-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.section-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--sea-green);
+    background: white;
+    box-shadow: 0 0 0 0.25rem rgba(64, 145, 108, 0.25);
+    transform: translateY(-2px);
+}
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    background: var(--nyanza);
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.info-item:hover {
+    border-color: var(--sea-green);
+    background: white;
+    transform: translateY(-2px);
+}
+
+.info-label {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.info-label i {
+    color: var(--sea-green);
+    width: 20px;
+    font-size: 1.1rem;
+}
+
+.info-value {
+    color: #333;
+    font-weight: 500;
+    text-align: right;
+}
+
+.activity-timeline {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    border: 2px solid var(--celadon-2);
+}
+
+.timeline-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.timeline-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.timeline-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 2px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    background: var(--nyanza);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-left: 1rem;
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover {
+    border-color: var(--sea-green);
+    transform: translateX(5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.5rem;
+    top: 1.5rem;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--sea-green);
+    border: 4px solid white;
+    box-shadow: 0 0 0 3px var(--sea-green);
+}
+
+.timeline-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.timeline-item-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--sea-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.timeline-details {
+    flex: 1;
+}
+
+.timeline-action {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-date {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.form-actions {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    border: 2px solid var(--celadon-2);
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 1rem 3rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-width: 200px;
+}
+
+.btn-save:hover {
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(64, 145, 108, 0.4);
+}
+
+.btn-save::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-save:hover::before {
+    left: 100%;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border: 2px solid var(--celadon-2);
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    margin-left: 1rem;
+}
+
+.btn-secondary:hover {
+    color: var(--sea-green);
+    text-decoration: none;
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+    transform: translateY(-2px);
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.quick-action-card {
+    background: white;
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.quick-action-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    text-decoration: none;
+    color: inherit;
+}
+
+.quick-action-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.quick-action-title {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.quick-action-desc {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.security-section {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 2px solid #f39c12;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.security-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.security-icon {
+    width: 50px;
+    height: 50px;
+    background: #f39c12;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.security-title {
+    color: #92400e;
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.security-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.security-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.security-item-icon {
+    width: 35px;
+    height: 35px;
+    background: #f39c12;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.security-item-text {
+    color: #92400e;
+    font-weight: 500;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .profile-hero {
+        padding: 2rem 1.5rem;
+        text-align: center;
+    }
+    
+    .profile-content {
+        padding: 2rem 1.5rem;
+    }
+    
+    .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .content-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .security-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn-secondary {
+        margin-left: 0;
+        margin-top: 1rem;
+        display: block;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page-container">
+    <div class="container-fluid">
+        <!-- Enhanced Hero Section -->
+        <div class="profile-hero">
+            <div class="profile-hero-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-4 mb-3">
+                            <i class="fas fa-user-shield"></i> Admin Profile
+                        </h1>
+                        <p class="lead mb-0">Manage your administrative account and system preferences</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-right text-center mt-3 mt-lg-0">
+                        <a href="{% url 'admin_control:dashboard' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="{% url 'admin_control:add_product' %}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="quick-action-title">Add Product</div>
+                <div class="quick-action-desc">Create new product</div>
+            </a>
+            <a href="{% url 'admin_control:manage_orders' %}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="quick-action-title">Manage Orders</div>
+                <div class="quick-action-desc">View and update orders</div>
+            </a>
+            <a href="{% url 'admin_control:analytics' %}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="quick-action-title">Analytics</div>
+                <div class="quick-action-desc">View performance metrics</div>
+            </a>
+            <a href="{% url 'admin_control:manage_users' %}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="quick-action-title">Manage Users</div>
+                <div class="quick-action-desc">User administration</div>
+            </a>
+        </div>
+
+        <!-- Main Profile Card -->
+        <div class="profile-main-card">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar-container">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" class="profile-avatar" alt="Profile Picture" id="profileImage">
+                    {% else %}
+                        <div class="profile-avatar-placeholder" id="profileImage">
+                            {{ user.first_name.0|default:user.username.0|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="avatar-upload-overlay" onclick="document.getElementById('id_profile_picture').click()">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+                
+                <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="profile-role">
+                    <i class="fas fa-shield-alt"></i> {{ user.role.name|default:"Administrator" }}
+                </div>
+                <div class="profile-email">{{ user.email }}</div>
+                
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="stat-number">{{ total_products }}</div>
+                        <div class="stat-label">Products</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="stat-number">{{ total_orders }}</div>
+                        <div class="stat-label">Orders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-number">{{ total_customers }}</div>
+                        <div class="stat-label">Customers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-number">₹{{ total_revenue|floatformat:0 }}</div>
+                        <div class="stat-label">Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="profile-content">
+                <!-- Content Tabs -->
+                <div class="content-tabs">
+                    <button class="tab-button active" data-tab="profile">
+                        <i class="fas fa-user-edit"></i> Edit Profile
+                    </button>
+                    <button class="tab-button" data-tab="account">
+                        <i class="fas fa-cog"></i> Account Info
+                    </button>
+                    <button class="tab-button" data-tab="activity">
+                        <i class="fas fa-history"></i> Activity
+                    </button>
+                    <button class="tab-button" data-tab="security">
+                        <i class="fas fa-shield-alt"></i> Security
+                    </button>
+                </div>
+
+                <!-- Profile Edit Tab -->
+                <div class="tab-content active" id="profile-tab">
+                    <form method="post" enctype="multipart/form-data" id="profileForm">
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <h5 class="section-title">Personal Information</h5>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger mt-1">{{ form.first_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger mt-1">{{ form.last_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger mt-1">{{ form.email.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                                    {{ form.phone_number }}
+                                    {% if form.phone_number.errors %}
+                                        <div class="text-danger mt-1">{{ form.phone_number.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.bio.id_for_label }}" class="form-label">Bio</label>
+                                {{ form.bio }}
+                                {% if form.bio.errors %}
+                                    <div class="text-danger mt-1">{{ form.bio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group" style="display: none;">
+                                <label for="id_profile_picture" class="form-label">Profile Picture</label>
+                                {{ form.profile_picture }}
+                                {% if form.profile_picture.errors %}
+                                    <div class="text-danger mt-1">{{ form.profile_picture.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i> Update Profile
+                            </button>
+                            <a href="{% url 'admin_control:dashboard' %}" class="btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Account Info Tab -->
+                <div class="tab-content" id="account-tab">
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <h5 class="section-title">Account Information</h5>
+                        </div>
+                        
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-at"></i> Username
+                                </div>
+                                <div class="info-value">{{ user.username }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-envelope"></i> Email
+                                </div>
+                                <div class="info-value">{{ user.email }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-user-tag"></i> Role
+                                </div>
+                                <div class="info-value">
+                                    <span class="badge badge-danger">{{ user.role.name }}</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-toggle-on"></i> Status
+                                </div>
+                                <div class="info-value">
+                                    {% if user.is_active %}
+                                        <span class="badge badge-success">Active</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">Inactive</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-calendar-plus"></i> Member Since
+                                </div>
+                                <div class="info-value">{{ user.date_joined|date:"M d, Y" }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-clock"></i> Last Login
+                                </div>
+                                <div class="info-value">
+                                    {% if user.last_login %}
+                                        {{ user.last_login|timesince }} ago
+                                    {% else %}
+                                        Never
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Tab -->
+                <div class="tab-content" id="activity-tab">
+                    <div class="activity-timeline">
+                        <div class="timeline-header">
+                            <div class="timeline-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h5 class="timeline-title">Recent Activity</h5>
+                        </div>
+                        
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-item-icon">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <div class="timeline-action">Last Login</div>
+                                        <div class="timeline-date">
+                                            {% if user.last_login %}
+                                                {{ user.last_login|date:"M d, Y g:i A" }}
+                                            {% else %}
+                                                No login recorded
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-item-icon">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <div class="timeline-action">Account Created</div>
+                                        <div class="timeline-date">{{ user.date_joined|date:"M d, Y g:i A" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-item-icon">
+                                        <i class="fas fa-edit"></i>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <div class="timeline-action">Profile Last Updated</div>
+                                        <div class="timeline-date">Today</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="tab-content" id="security-tab">
+                    <div class="security-section">
+                        <div class="security-header">
+                            <div class="security-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h5 class="security-title">Security & Permissions</h5>
+                        </div>
+                        
+                        <div class="security-grid">
+                            <div class="security-item">
+                                <div class="security-item-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <div class="security-item-text">Two-Factor Authentication</div>
+                            </div>
+                            <div class="security-item">
+                                <div class="security-item-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <div class="security-item-text">Password Protection</div>
+                            </div>
+                            <div class="security-item">
+                                <div class="security-item-icon">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div class="security-item-text">Admin Privileges</div>
+                            </div>
+                            <div class="security-item">
+                                <div class="security-item-icon">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <div class="security-item-text">Activity Monitoring</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked button and corresponding content
+            this.classList.add('active');
+            document.getElementById(tabId + '-tab').classList.add('active');
+        });
+    });
+    
+    // Profile picture upload handling
+    const profilePictureInput = document.getElementById('id_profile_picture');
+    const profileImage = document.getElementById('profileImage');
+    
+    if (profilePictureInput) {
+        profilePictureInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select a valid image file');
+                    this.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (profileImage.tagName === 'IMG') {
+                        profileImage.src = e.target.result;
+                    } else {
+                        // Replace placeholder with image
+                        const newImg = document.createElement('img');
+                        newImg.src = e.target.result;
+                        newImg.className = 'profile-avatar';
+                        newImg.alt = 'Profile Picture';
+                        newImg.id = 'profileImage';
+                        profileImage.parentNode.replaceChild(newImg, profileImage);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Form validation and enhancement
+    const form = document.getElementById('profileForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Validate required fields
+            const email = document.getElementById('{{ form.email.id_for_label }}').value.trim();
+            if (!email) {
+                e.preventDefault();
+                alert('Email address is required.');
+                document.getElementById('{{ form.email.id_for_label }}').focus();
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address.');
+                document.getElementById('{{ form.email.id_for_label }}').focus();
+                return;
+            }
+            
+            const submitBtn = form.querySelector('.btn-save');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+    
+    // Add smooth animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all sections for animation
+    document.querySelectorAll('.form-section, .stat-card, .quick-action-card').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.6s ease';
+        observer.observe(el);
+    });
+});
+</script>
+{% endblock %}

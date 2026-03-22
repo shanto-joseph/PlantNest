@@ -1,0 +1,206 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Manage Users - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Title & Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Manage Users</h1>
+            <p class="mb-0 text-muted">View, search, and manage user accounts.</p>
+        </div>
+        <a href="{% url 'admin_control:add_user' %}" class="btn btn-admin-primary rounded-pill">
+            <i class="fas fa-plus fa-sm mr-2"></i>Add New User
+        </a>
+    </div>
+
+    <!-- User Statistics -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card h-100 py-2 stat-users">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Total Users</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ total_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card h-100 py-2 stat-products">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Active Users</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ active_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card h-100 py-2 stat-orders">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">New This Month</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ new_this_month }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card h-100 py-2 stat-revenue">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Administrators</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ admin_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-shield fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card admin-card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 card-title"><i class="fas fa-list-ul mr-2"></i>User List</h5>
+            <div class="d-flex align-items-center">
+                <input type="text" class="form-control form-control-sm mr-2" placeholder="Search..." id="userSearch">
+                <select class="form-control form-control-sm" id="userStatusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover admin-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Contact</th>
+                            <th>Joined</th>
+                            <th>Last Login</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr data-status="{% if user.is_active %}active{% else %}inactive{% endif %}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if user.profile_picture %}
+                                        <img src="{{ user.profile_picture.url }}" class="user-avatar rounded-circle" alt="{{ user.username }}">
+                                    {% else %}
+                                        <div class="user-avatar-placeholder rounded-circle">
+                                            <span>{{ user.username|first|upper }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <div class="ml-3">
+                                        <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                        <div class="text-muted small">@{{ user.username }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-pill badge-{% if user.is_admin %}danger{% elif user.is_staff %}warning{% else %}success{% endif %}">
+                                    {{ user.role.name }}
+                                </span>
+                            </td>
+                            <td>
+                                <div>{{ user.email }}</div>
+                                <div class="text-muted small">{{ user.phone_number|default:'No phone' }}</div>
+                            </td>
+                            <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                            <td>
+                                {% if user.last_login %}
+                                    {{ user.last_login|date:"M d, Y, P" }}
+                                {% else %}
+                                    <span class="text-muted">Never</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if user.is_active %}
+                                    <span class="badge badge-pill badge-success">Active</span>
+                                {% else %}
+                                    <span class="badge badge-pill badge-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'admin_control:view_user' user.id %}" class="btn btn-outline-primary" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'admin_control:edit_user' user.id %}" class="btn btn-outline-secondary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'admin_control:delete_user' user.id %}" class="btn btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('userSearch');
+    const statusFilter = document.getElementById('userStatusFilter');
+    const tableRows = document.querySelectorAll('#usersTable tbody tr');
+
+    function filterUsers() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+
+        tableRows.forEach(row => {
+            const userName = row.querySelector('td:first-child strong').textContent.toLowerCase();
+            const userHandle = row.querySelector('td:first-child .text-muted').textContent.toLowerCase();
+            const userEmail = row.querySelector('td:nth-child(3) div:first-child').textContent.toLowerCase();
+            
+            const matchesSearch = userName.includes(searchTerm) || userHandle.includes(searchTerm) || userEmail.includes(searchTerm);
+            const matchesStatus = !statusValue || row.dataset.status === statusValue;
+            
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', filterUsers);
+    statusFilter.addEventListener('change', filterUsers);
+});
+</script>
+{% endblock %}

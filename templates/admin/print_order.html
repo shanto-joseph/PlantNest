@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order #{{ order.order_number }} - Print</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .print-header {
+            text-align: center;
+            border-bottom: 3px solid #40916C;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .print-header h1 {
+            color: #1B4332;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .print-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .order-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .info-section {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-section h3 {
+            color: #1B4332;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #40916C;
+            padding-bottom: 5px;
+        }
+
+        .info-section p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .info-section strong {
+            color: #1B4332;
+        }
+
+        .order-items {
+            margin-bottom: 30px;
+        }
+
+        .order-items h3 {
+            color: #1B4332;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #40916C;
+            padding-bottom: 5px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .items-table thead {
+            background: #1B4332;
+            color: white;
+        }
+
+        .items-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .items-table tbody tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .items-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .items-table td {
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .items-table .text-right {
+            text-align: right;
+        }
+
+        .order-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #40916C;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid #40916C;
+            margin-top: 10px;
+            padding-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1B4332;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-shipped {
+            background: #cce5ff;
+            color: #0056b3;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .print-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .print-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-print {
+            background: #40916C;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #1B4332;
+        }
+
+        .btn-close {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-close:hover {
+            background: #495057;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+
+            .print-buttons {
+                display: none;
+            }
+
+            .print-header {
+                border-bottom: 2px solid #333;
+            }
+
+            .info-section {
+                break-inside: avoid;
+            }
+
+            .items-table {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-buttons">
+        <button class="btn btn-print" onclick="window.print()">
+            Print Order
+        </button>
+        <button class="btn btn-close" onclick="window.close()">
+            Close
+        </button>
+    </div>
+
+    <div class="print-header">
+        <h1>Plant & Garden Store</h1>
+        <p>Order Invoice</p>
+    </div>
+
+    <div class="order-info">
+        <div class="info-section">
+            <h3>Order Information</h3>
+            <p><strong>Order Number:</strong> #{{ order.order_number }}</p>
+            <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+            <p><strong>Order Time:</strong> {{ order.created_at|time:"g:i A" }}</p>
+            <p>
+                <strong>Status:</strong>
+                <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+            </p>
+        </div>
+
+        <div class="info-section">
+            <h3>Customer Information</h3>
+            <p><strong>Name:</strong> {{ order.user.get_full_name|default:order.user.username }}</p>
+            <p><strong>Email:</strong> {{ order.user.email }}</p>
+            {% if order.user.phone_number %}
+            <p><strong>Phone:</strong> {{ order.user.phone_number }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="order-items">
+        <h3>Order Items</h3>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="text-right">Price</th>
+                    <th class="text-right">Quantity</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td class="text-right">₹{{ item.price }}</td>
+                    <td class="text-right">{{ item.quantity }}</td>
+                    <td class="text-right">₹{{ item.get_total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="order-summary">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>₹{{ subtotal }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping:</span>
+                <span>{% if shipping_cost > 0 %}₹{{ shipping_cost }}{% else %}Free{% endif %}</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total:</span>
+                <span>₹{{ order.total_amount }}</span>
+            </div>
+        </div>
+    </div>
+
+    {% if order.payment %}
+    <div class="info-section">
+        <h3>Payment Information</h3>
+        <p><strong>Payment Method:</strong> {{ order.payment.get_payment_method_display }}</p>
+        <p><strong>Payment Date:</strong> {{ order.payment.payment_date|date:"F d, Y g:i A" }}</p>
+        <p><strong>Payment Status:</strong>
+            {% if order.payment.is_successful %}
+                <span style="color: #155724;">Paid</span>
+            {% else %}
+                <span style="color: #721c24;">Unpaid</span>
+            {% endif %}
+        </p>
+        {% if order.payment.transaction_id %}
+        <p><strong>Transaction ID:</strong> {{ order.payment.transaction_id }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="print-footer">
+        <p>Thank you for your business!</p>
+        <p>For any queries, please contact us at support@plantstore.com</p>
+        <p>&copy; {{ "now"|date:"Y" }} Plant & Garden Store. All rights reserved.</p>
+    </div>
+
+    <script>
+        // Auto-print when page loads (optional)
+        // window.onload = function() { window.print(); }
+    </script>
+</body>
+</html>

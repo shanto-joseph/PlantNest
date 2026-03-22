@@ -1,0 +1,567 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load order_extras %}
+
+{% block title %}Track Order - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.track-order-hero {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 3rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.track-order-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.track-order-content {
+    position: relative;
+    z-index: 2;
+}
+
+.tracking-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin: -2rem 1rem 3rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 3;
+    border: 2px solid var(--celadon-2);
+}
+
+.tracking-form {
+    max-width: 500px;
+    margin: 0 auto 3rem;
+    background: var(--nyanza);
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 2rem;
+}
+
+.form-title {
+    text-align: center;
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+    outline: none;
+}
+
+.btn-track {
+    width: 100%;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-track:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.order-tracking-result {
+    background: white;
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.tracking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.tracking-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin: 0;
+}
+
+.tracking-status {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 700;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-processing {
+    background: #cce5ff;
+    color: #0056b3;
+}
+
+.status-shipped {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-delivered {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.tracking-progress {
+    margin: 2rem 0;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 2rem 0;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--celadon-2);
+    z-index: 1;
+}
+
+.progress-line {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    z-index: 2;
+    transition: width 0.5s ease;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 3;
+    flex: 1;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.step.completed .step-icon {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+}
+
+.step.active .step-icon {
+    background: var(--sea-green);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.step.pending .step-icon {
+    background: var(--celadon-2);
+    color: #6c757d;
+}
+
+.step-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--dartmouth-green);
+}
+
+.step.completed .step-label {
+    color: var(--sea-green);
+}
+
+.step.active .step-label {
+    color: var(--sea-green);
+}
+
+.step.pending .step-label {
+    color: #6c757d;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.order-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.detail-card {
+    background: var(--nyanza);
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--dartmouth-green);
+}
+
+.detail-icon {
+    width: 30px;
+    height: 30px;
+    background: var(--sea-green);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.detail-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.detail-content {
+    color: #333;
+}
+
+.estimated-delivery {
+    background: linear-gradient(135deg, #e8f5e8 0%, var(--nyanza) 100%);
+    border: 2px solid var(--sea-green);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.delivery-icon {
+    font-size: 3rem;
+    color: var(--sea-green);
+    margin-bottom: 1rem;
+}
+
+.delivery-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.delivery-date {
+    color: var(--sea-green);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .track-order-hero {
+        padding: 2rem 0;
+    }
+    
+    .tracking-container {
+        margin: -1rem 1rem 2rem;
+        padding: 2rem 1.5rem;
+    }
+    
+    .tracking-form {
+        padding: 1.5rem;
+    }
+    
+    .tracking-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .progress-steps {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .progress-steps::before {
+        display: none;
+    }
+    
+    .progress-line {
+        display: none;
+    }
+    
+    .order-details {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="track-order-hero">
+    <div class="container track-order-content">
+        <div class="text-center">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-truck"></i> Track Your Order
+            </h1>
+            <p class="lead">Enter your order details to track your shipment</p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+            <li class="breadcrumb-item active">Track Order</li>
+        </ol>
+    </nav>
+
+    <div class="tracking-container">
+        <!-- Tracking Form -->
+        <div class="tracking-form">
+            <h4 class="form-title">
+                <i class="fas fa-search"></i> Find Your Order
+            </h4>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.order_number.id_for_label }}" class="form-label">Order Number</label>
+                    {{ form.order_number }}
+                    {% if form.order_number.errors %}
+                        <small class="text-danger">{{ form.order_number.errors.0 }}</small>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <small class="text-danger">{{ form.email.errors.0 }}</small>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn-track">
+                    <i class="fas fa-search"></i> Track Order
+                </button>
+            </form>
+        </div>
+
+        <!-- Order Tracking Result -->
+        {% if order %}
+        <div class="order-tracking-result">
+            <div class="tracking-header">
+                <h4 class="tracking-title">Order {{ order.order_number }}</h4>
+                <div class="tracking-status status-{{ order.status }}">
+                    {{ order.get_status_display }}
+                </div>
+            </div>
+
+            <!-- Progress Tracking -->
+            <div class="tracking-progress">
+                <div class="progress-steps">
+                    <div class="progress-line" style="width: {% if order.status == 'pending' %}0%{% elif order.status == 'processing' %}25%{% elif order.status == 'shipped' %}75%{% elif order.status == 'delivered' %}100%{% else %}0%{% endif %};"></div>
+                    
+                    <div class="step {% if order.status in 'pending,processing,shipped,delivered' %}completed{% else %}pending{% endif %}">
+                        <div class="step-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="step-label">Order Placed</div>
+                    </div>
+                    
+                    <div class="step {% if order.status in 'processing,shipped,delivered' %}completed{% elif order.status == 'pending' %}active{% else %}pending{% endif %}">
+                        <div class="step-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="step-label">Processing</div>
+                    </div>
+                    
+                    <div class="step {% if order.status in 'shipped,delivered' %}completed{% elif order.status == 'processing' %}active{% else %}pending{% endif %}">
+                        <div class="step-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="step-label">Shipped</div>
+                    </div>
+                    
+                    <div class="step {% if order.status == 'delivered' %}completed{% elif order.status == 'shipped' %}active{% else %}pending{% endif %}">
+                        <div class="step-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="step-label">Delivered</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estimated Delivery -->
+            {% if order.status in 'processing,shipped' %}
+            <div class="estimated-delivery">
+                <div class="delivery-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h6 class="delivery-title">Estimated Delivery</h6>
+                <div class="delivery-date">
+                    {% if order.status == 'shipped' %}
+                        {{ order.created_at|add_days:3 }}
+                    {% else %}
+                        {{ order.created_at|add_days:5 }}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Order Details -->
+            <div class="order-details">
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <div class="detail-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <h6 class="detail-title">Order Date</h6>
+                    </div>
+                    <div class="detail-content">
+                        {{ order.created_at|date:"F d, Y g:i A" }}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <div class="detail-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <h6 class="detail-title">Order Total</h6>
+                    </div>
+                    <div class="detail-content">
+                        <strong>₹{{ order.total_amount }}</strong>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <div class="detail-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <h6 class="detail-title">Payment</h6>
+                    </div>
+                    <div class="detail-content">
+                        {{ order.get_payment_method }}<br>
+                        {% if order.payment.is_successful %}
+                            <span class="text-success">Paid</span>
+                        {% else %}
+                            <span class="text-danger">{{ order.get_payment_status_display }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-header">
+                        <div class="detail-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <h6 class="detail-title">Items</h6>
+                    </div>
+                    <div class="detail-content">
+                        {{ order.items.count }} item{{ order.items.count|pluralize }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="detail-card" style="margin-top: 1.5rem;">
+                <div class="detail-header">
+                    <div class="detail-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h6 class="detail-title">Shipping Address</h6>
+                </div>
+                <div class="detail-content">
+                    {{ order.get_shipping_address_display|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                {% if user.is_authenticated and order.user == user %}
+                    <a href="{% url 'order_payment:order_detail' order.id %}" class="btn-action btn-primary">
+                        <i class="fas fa-eye"></i> View Full Details
+                    </a>
+                {% endif %}
+                <a href="{% url 'product_management:home' %}" class="btn-action btn-secondary">
+                    <i class="fas fa-home"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

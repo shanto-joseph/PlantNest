@@ -1,0 +1,634 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Notifications - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.notifications-page-container {
+    background: linear-gradient(135deg, var(--nyanza) 0%, #f8f9fa 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.notifications-hero {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 3rem 0;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.notifications-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.notifications-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.notifications-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin: -2rem 1rem 3rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 3;
+    border: 2px solid var(--celadon-2);
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.notifications-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification-controls {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-control {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.btn-control:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.btn-secondary-control {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border: 2px solid var(--celadon-2);
+}
+
+.btn-secondary-control:hover {
+    color: var(--sea-green);
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+}
+
+.notification-card {
+    background: #f8f9fa;
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.notification-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.notification-card.unread {
+    border-left: 5px solid var(--sea-green);
+    background: linear-gradient(135deg, rgba(64, 145, 108, 0.05) 0%, #f8f9fa 100%);
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.notification-title-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.notification-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.icon-order_confirmed { background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%); }
+.icon-order_shipped { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); }
+.icon-order_delivered { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); }
+.icon-order_cancelled { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
+.icon-blog_approved { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); }
+.icon-blog_rejected { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #212529; }
+.icon-support_replied { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); }
+.icon-support_resolved { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); }
+.icon-welcome { background: linear-gradient(135deg, var(--mint-2) 0%, var(--sea-green) 100%); }
+.icon-promotional { background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%); }
+.icon-reminder { background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); }
+.icon-system { background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); }
+
+.notification-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.notification-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.meta-item i {
+    color: var(--sea-green);
+}
+
+.priority-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.priority-low { background: #e9ecef; color: #495057; }
+.priority-medium { background: #cce5ff; color: #0056b3; }
+.priority-high { background: #fff3cd; color: #856404; }
+.priority-urgent { background: #f8d7da; color: #721c24; }
+
+.notification-message {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-notification {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 2px solid;
+}
+
+.btn-view {
+    background: transparent;
+    color: var(--sea-green);
+    border-color: var(--sea-green);
+}
+
+.btn-view:hover {
+    background: var(--sea-green);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-dismiss {
+    background: transparent;
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-dismiss:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.unread-indicator {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.unread-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--sea-green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--nyanza);
+    border-radius: 15px;
+    border: 2px solid var(--celadon-2);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+.empty-state h4 {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .notifications-hero {
+        padding: 2rem 0;
+    }
+    
+    .notifications-container {
+        margin: -1rem 1rem 2rem;
+        padding: 1.5rem;
+    }
+    
+    .notifications-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .notification-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .priority-badge {
+        margin-left: 0;
+    }
+    
+    .notification-actions {
+        justify-content: center;
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-page-container">
+    <div class="container">
+        <div class="notifications-hero">
+            <div class="notifications-hero-content">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-bell"></i> My Notifications
+                </h1>
+                <p class="lead">Stay updated with your orders, blog posts, and important updates</p>
+            </div>
+        </div>
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Notifications</li>
+            </ol>
+        </nav>
+
+        <div class="notifications-container">
+            <div class="notifications-header">
+                <h4 class="notifications-title">
+                    <i class="fas fa-inbox"></i> Your Notifications
+                </h4>
+                <div class="notification-controls">
+                    <button class="btn-control" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double"></i> Mark All Read
+                    </button>
+                </div>
+            </div>
+
+            {% if notifications %}
+                {% for notification in notifications %}
+                <div class="notification-card {% if not notification.is_read %}unread{% endif %}" 
+                     data-notification-id="{{ notification.id }}">
+                    
+                    {% if not notification.is_read %}
+                    <div class="unread-indicator">
+                        <div class="unread-dot"></div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="notification-header">
+                        <div class="notification-title-section">
+                            <div class="notification-icon icon-{{ notification.notification_type }}">
+                                <i class="{{ notification.get_icon }}"></i>
+                            </div>
+                            <div>
+                                <h5 class="notification-title">{{ notification.title }}</h5>
+                                <div class="notification-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        {{ notification.created_at|timesince }} ago
+                                    </div>
+                                    {% if notification.email_sent %}
+                                    <div class="meta-item">
+                                        <i class="fas fa-envelope"></i>
+                                        Email sent
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="priority-badge priority-{{ notification.priority }}">
+                            {{ notification.get_priority_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="notification-message">
+                        {{ notification.message }}
+                    </div>
+                    
+                    <div class="notification-actions">
+                        {% if notification.action_url %}
+                            <a href="{{ notification.action_url }}" class="btn-notification btn-view" 
+                               onclick="markNotificationAsRead({{ notification.id }})">
+                                <i class="fas fa-external-link-alt"></i> View Details
+                            </a>
+                        {% endif %}
+                        {% if not notification.is_read %}
+                            <button class="btn-notification btn-view" onclick="markNotificationAsRead({{ notification.id }})">
+                                <i class="fas fa-check"></i> Mark as Read
+                            </button>
+                        {% endif %}
+                        <button class="btn-notification btn-dismiss" onclick="dismissNotification(event, {{ notification.id }})">
+                            <i class="fas fa-times"></i> Dismiss
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <!-- Pagination -->
+                {% if notifications.has_other_pages %}
+                <nav aria-label="Notifications pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if notifications.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ notifications.previous_page_number }}">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in notifications.paginator.page_range %}
+                            {% if notifications.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if notifications.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ notifications.next_page_number }}">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-bell-slash"></i>
+                    </div>
+                    <h4>No notifications yet</h4>
+                    <p>You're all caught up! New notifications will appear here when there are updates about your orders, blog posts, or account.</p>
+                    <a href="{% url 'product_management:product_list' %}" class="btn-control">
+                        <i class="fas fa-seedling"></i> Start Shopping
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function markNotificationAsRead(notificationId) {
+    fetch(`/community/notifications/mark-read/${notificationId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const notificationCard = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notificationCard) {
+                notificationCard.classList.remove('unread');
+                const unreadIndicator = notificationCard.querySelector('.unread-indicator');
+                if (unreadIndicator) {
+                    unreadIndicator.remove();
+                }
+                
+                // Update mark as read button
+                const markReadBtn = notificationCard.querySelector('button[onclick*="markNotificationAsRead"]');
+                if (markReadBtn) {
+                    markReadBtn.style.display = 'none';
+                }
+            }
+            
+            // Update notification count in navbar
+            // updateCustomerNotificationCount(); // Removed as per edit hint
+            
+            showNotification('Notification marked as read', 'success');
+        }
+    })
+    .catch(error => {
+        console.error('Error marking notification as read:', error);
+        showNotification('Error marking notification as read', 'error');
+    });
+}
+
+function dismissNotification(event, notificationId) {
+    event.stopPropagation();
+    
+    if (confirm('Are you sure you want to dismiss this notification?')) {
+        fetch(`/community/notifications/dismiss/${notificationId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const notificationCard = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                if (notificationCard) {
+                    notificationCard.style.opacity = '0';
+                    notificationCard.style.transform = 'translateX(-100%)';
+                    setTimeout(() => {
+                        notificationCard.remove();
+                        
+                        // Check if no notifications left
+                        const remainingNotifications = document.querySelectorAll('.notification-card').length;
+                        if (remainingNotifications === 0) {
+                            location.reload(); // Reload to show empty state
+                        }
+                    }, 300);
+                }
+                
+                // Update notification count in navbar
+                // updateCustomerNotificationCount(); // Removed as per edit hint
+                
+                showNotification('Notification dismissed', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error dismissing notification:', error);
+            showNotification('Error dismissing notification', 'error');
+        });
+    }
+}
+
+function markAllAsRead() {
+    const unreadNotifications = document.querySelectorAll('.notification-card.unread');
+    
+    if (unreadNotifications.length === 0) {
+        showNotification('No unread notifications to mark', 'info');
+        return;
+    }
+    
+    if (confirm(`Mark all ${unreadNotifications.length} notifications as read?`)) {
+        fetch('/community/notifications/mark-all-read/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove unread styling from all notifications
+                unreadNotifications.forEach(notification => {
+                    notification.classList.remove('unread');
+                    const unreadIndicator = notification.querySelector('.unread-indicator');
+                    if (unreadIndicator) {
+                        unreadIndicator.remove();
+                    }
+                    
+                    // Hide mark as read buttons
+                    const markReadBtn = notification.querySelector('button[onclick*="markNotificationAsRead"]');
+                    if (markReadBtn) {
+                        markReadBtn.style.display = 'none';
+                    }
+                });
+                
+                // Update notification count in navbar
+                // updateCustomerNotificationCount(); // Removed as per edit hint
+                
+                showNotification(`${data.marked_count} notifications marked as read`, 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error marking all notifications as read:', error);
+            showNotification('Error marking notifications as read', 'error');
+        });
+    }
+}
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+
+function showNotification(message, type = 'success') {
+    const alertClass = type === 'success' ? 'alert-success' : type === 'info' ? 'alert-info' : 'alert-danger';
+    const notification = document.createElement('div');
+    notification.className = `alert ${alertClass} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '100px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '300px';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 4000);
+}
+
+// Remove updateCustomerNotificationCount and all calls to it
+</script>
+{% endblock %}

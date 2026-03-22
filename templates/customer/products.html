@@ -1,0 +1,944 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load product_extras %}
+
+{% block title %}Products - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body {
+    font-family: "Poppins", sans-serif;
+    color: #444444;
+}
+
+.products-container {
+    padding: 80px 0 54px;
+    background: #f8f9fa;
+}
+
+.products-hero {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.products-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.products-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.sidebar {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+    margin-bottom: 2rem;
+}
+
+.sidebar-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.filter-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--celadon-2);
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.filter-title {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: 0.75rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.6rem 0.8rem 0.6rem 2.2rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.search-input:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+    background: white;
+    outline: none;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--sea-green);
+    font-size: 0.9rem;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    background: white;
+    color: var(--dartmouth-green);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    border-color: var(--sea-green);
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+}
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem;
+    border: 1px solid var(--celadon-2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    font-size: 0.85rem;
+}
+
+.filter-option:hover {
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+}
+
+.filter-option.active {
+    border-color: var(--sea-green);
+    background: linear-gradient(135deg, rgba(64, 145, 108, 0.1) 0%, var(--nyanza) 100%);
+}
+
+.filter-option input[type="checkbox"],
+.filter-option input[type="radio"] {
+    margin: 0;
+}
+
+.price-range {
+    margin-top: 0.75rem;
+}
+
+.price-input {
+    width: 100%;
+    margin-bottom: 0.4rem;
+}
+
+.price-display {
+    text-align: center;
+    color: var(--sea-green);
+    font-weight: 600;
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.clear-filters {
+    background: transparent;
+    color: #6c757d;
+    border: 1px solid #6c757d;
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 0.75rem;
+}
+
+.clear-filters:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.products-main {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+}
+
+.products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.products-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.8rem;
+}
+
+.results-count {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.sort-dropdown {
+    border: 2px solid var(--celadon-2);
+    border-radius: 10px;
+    padding: 0.4rem 0.8rem;
+    background: white;
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.sort-dropdown:focus {
+    border-color: var(--sea-green);
+    outline: none;
+}
+
+/* Modern Product Cards */
+.section-products .single-product {
+    margin-bottom: 26px;
+    transition: all 0.3s ease;
+}
+
+.section-products .single-product:hover {
+    transform: translateY(-5px);
+}
+
+.section-products .single-product .part-1 {
+    position: relative;
+    height: 290px;
+    max-height: 290px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.section-products .single-product .part-1::before {
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    transition: all 0.3s;
+    border-radius: 15px;
+}
+
+.section-products .single-product:hover .part-1::before {
+    transform: scale(1.05);
+}
+
+.section-products .single-product .part-1 .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.section-products .single-product .part-1 .product-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sea-green);
+    font-size: 3rem;
+    border-radius: 15px;
+}
+
+.section-products .single-product .part-1 .discount,
+.section-products .single-product .part-1 .new,
+.section-products .single-product .part-1 .eco {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    color: #ffffff;
+    background-color: #fe302f;
+    padding: 4px 12px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+    z-index: 3;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.section-products .single-product .part-1 .new {
+    background: linear-gradient(135deg, #444444 0%, #333333 100%);
+}
+
+.section-products .single-product .part-1 .eco {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    top: 50px;
+}
+
+.section-products .single-product .part-1 ul {
+    position: absolute;
+    bottom: -50px;
+    left: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    opacity: 0;
+    transition: all 0.4s ease;
+    z-index: 3;
+}
+
+.section-products .single-product:hover .part-1 ul {
+    bottom: 20px;
+    opacity: 1;
+}
+
+.section-products .single-product .part-1 ul li {
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.section-products .single-product .part-1 ul li a {
+    display: inline-block;
+    width: 42px;
+    height: 42px;
+    line-height: 42px;
+    background-color: #ffffff;
+    color: #444444;
+    text-align: center;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.section-products .single-product .part-1 ul li a:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    transform: translateY(-2px);
+}
+
+.section-products .single-product .part-2 {
+    padding: 0 10px;
+}
+
+.section-products .single-product .part-2 .product-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dartmouth-green);
+    margin-bottom: 8px;
+    line-height: 1.3;
+    height: 2.6rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.section-products .single-product .part-2 .product-category {
+    color: var(--sea-green);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.section-products .single-product .part-2 h4 {
+    display: inline-block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.section-products .single-product .part-2 .product-price {
+    color: var(--sea-green);
+    font-weight: 700;
+}
+
+.section-products .single-product .part-2 .product-old-price {
+    position: relative;
+    padding: 0 7px;
+    margin-right: 8px;
+    opacity: 0.6;
+    color: #888;
+}
+
+.section-products .single-product .part-2 .product-old-price::after {
+    position: absolute;
+    content: "";
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: #888;
+    transform: translateY(-50%);
+}
+
+.section-products .single-product .part-2 .stock-info {
+    font-size: 0.75rem;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+.stock-available {
+    color: var(--sea-green);
+}
+
+.stock-low {
+    color: #f39c12;
+}
+
+.stock-out {
+    color: #e74c3c;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--nyanza);
+    border-radius: 15px;
+    border: 2px solid var(--celadon-2);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: var(--celadon-2);
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h4 {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.pagination {
+    background: white;
+    border-radius: 12px;
+    padding: 0.75rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.page-link {
+    border: none;
+    color: var(--dartmouth-green);
+    padding: 0.5rem 0.75rem;
+    margin: 0 0.2rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.page-link:hover {
+    background: var(--celadon);
+    color: var(--dartmouth-green);
+    text-decoration: none;
+}
+
+.page-item.active .page-link {
+    background: var(--sea-green);
+    border-color: var(--sea-green);
+    color: white;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .products-container {
+        padding: 40px 0 30px;
+    }
+    
+    .products-hero {
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .sidebar {
+        position: static;
+        margin-bottom: 2rem;
+        padding: 1.2rem;
+    }
+    
+    .products-main {
+        padding: 1.5rem;
+    }
+    
+    .products-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .products-title {
+        font-size: 1.5rem;
+    }
+    
+    .section-products .single-product .part-1 {
+        height: 250px;
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 576px) {
+    .section-products .single-product .part-1 {
+        height: 220px;
+        max-height: 220px;
+    }
+    
+    .section-products .single-product .part-2 .product-title {
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Products</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 col-md-4">
+                <div class="sidebar">
+                    <h5 class="sidebar-title">
+                        <i class="fas fa-filter"></i> Filter Products
+                    </h5>
+                    
+                    <!-- Search -->
+                    <div class="filter-section">
+                        <h6 class="filter-title">Search</h6>
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" placeholder="Search products..." 
+                                   value="{{ request.GET.search }}" id="searchInput">
+                        </div>
+                    </div>
+                    
+                    <!-- Categories -->
+                    <div class="filter-section">
+                        <h6 class="filter-title">Categories</h6>
+                        <select class="filter-select" id="categorySelect">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.name }}" {% if request.GET.category == category.id|stringformat:'s' %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Price Range -->
+                    <div class="filter-section">
+                        <h6 class="filter-title">Price Range</h6>
+                        <div class="price-range">
+                            <input type="range" class="price-input" id="priceRange" 
+                                   min="0" max="5000" value="5000" step="100">
+                            <div class="price-display">
+                                Up to ₹<span id="priceValue">5000</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Special Features -->
+                    <div class="filter-section">
+                        <h6 class="filter-title">Features</h6>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="checkbox" id="ecoFriendly">
+                                <span>Eco-Friendly</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" id="inStock">
+                                <span>In Stock</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" id="newArrivals">
+                                <span>New Arrivals</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button class="clear-filters" onclick="clearAllFilters()">
+                        <i class="fas fa-times"></i> Clear All Filters
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9 col-md-8">
+                <div class="products-main">
+                    <!-- Products Header -->
+                    <div class="products-header">
+                        <div>
+                            <h2 class="products-title">
+                                <i class="fas fa-leaf"></i> Products
+                            </h2>
+                            <div class="results-count">
+                                <span id="resultsCount">{{ products.count }}</span> product{{ products.count|pluralize }} found
+                            </div>
+                        </div>
+                        <select class="sort-dropdown" id="sortSelect">
+                            <option value="name">Sort by Name</option>
+                            <option value="price_low">Price: Low to High</option>
+                            <option value="price_high">Price: High to Low</option>
+                            <option value="newest">Newest First</option>
+                        </select>
+                    </div>
+
+                    <!-- Products Grid -->
+                    {% if products %}
+                        <section class="section-products">
+                            <div class="container-fluid">
+                                <div class="row" id="productsGrid">
+                                    {% for product in products %}
+                                    <div class="col-md-6 col-lg-4 col-xl-3 searchable-item" 
+                                         data-name="{{ product.name|lower }}" 
+                                         data-category="{{ product.category.name|lower }}"
+                                         data-price="{{ product.price }}"
+                                         data-eco="{{ product.is_eco_friendly|yesno:'true,false' }}"
+                                         data-stock="{{ product.stock_quantity }}"
+                                         data-created="{{ product.created_at|date:'Y-m-d' }}">
+                                        <div class="single-product">
+                                            <div class="part-1">
+                                                {% if product.image %}
+                                                    <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+                                                {% else %}
+                                                    <div class="product-placeholder">
+                                                        <i class="fas fa-seedling"></i>
+                                                    </div>
+                                                {% endif %}
+                                                
+                                                <!-- Badges -->
+                                                {% if product.is_eco_friendly %}
+                                                    <span class="eco">
+                                                        <i class="fas fa-leaf"></i> Eco
+                                                    </span>
+                                                {% endif %}
+                                                {% if product.created_at|is_new_product:7 %}
+                                                    <span class="new">New</span>
+                                                {% endif %}
+                                                
+                                                <!-- Action Buttons -->
+                                                <ul>
+                                                    <li>
+                                                        <a href="#" class="add-to-cart-btn" data-product-id="{{ product.id }}" 
+                                                           {% if product.stock_quantity == 0 %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
+                                                            <i class="fas fa-shopping-cart"></i>
+                                                        </a>
+                                                    </li>
+                                                   
+                                                    <li>
+                                                        <a href="{% url 'product_management:product_detail' product.id %}">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    </li>
+                                                    
+                                                </ul>
+                                            </div>
+                                            <div class="part-2">
+                                                <div class="product-category">{{ product.category.name }}</div>
+                                                <h3 class="product-title">{{ product.name }}</h3>
+                                                <h4 class="product-price">₹{{ product.price }}</h4>
+                                                <div class="stock-info {% if product.stock_quantity <= 5 and product.stock_quantity > 0 %}stock-low{% elif product.stock_quantity == 0 %}stock-out{% else %}stock-available{% endif %}">
+                                                    {% if product.stock_quantity > 0 %}
+                                                        {{ product.stock_quantity }} in stock
+                                                    {% else %}
+                                                        Out of stock
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </section>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h4>No products found</h4>
+                            <p>Try adjusting your filters or search terms</p>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Pagination -->
+                    {% if products.has_other_pages %}
+                    <div class="pagination-wrapper">
+                        <nav aria-label="Products pagination">
+                            <ul class="pagination">
+                                {% if products.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ products.previous_page_number }}">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in products.paginator.page_range %}
+                                    {% if products.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if products.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ products.next_page_number }}">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchableItems = document.querySelectorAll('.searchable-item');
+    
+    searchInput.addEventListener('input', function() {
+        filterProducts();
+    });
+    
+    // Category filter
+    const categorySelect = document.getElementById('categorySelect');
+    categorySelect.addEventListener('change', function() {
+        filterProducts();
+    });
+    
+    // Price range
+    const priceRange = document.getElementById('priceRange');
+    const priceValue = document.getElementById('priceValue');
+    
+    priceRange.addEventListener('input', function() {
+        priceValue.textContent = this.value;
+        filterProducts();
+    });
+    
+    // Feature checkboxes
+    const featureCheckboxes = document.querySelectorAll('#ecoFriendly, #inStock, #newArrivals');
+    featureCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            filterProducts();
+        });
+    });
+    
+    // Sort functionality
+    const sortSelect = document.getElementById('sortSelect');
+    sortSelect.addEventListener('change', function() {
+        sortProducts(this.value);
+    });
+    
+    function filterProducts() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedCategory = categorySelect.value;
+        const maxPrice = parseInt(priceRange.value);
+        const ecoFriendly = document.getElementById('ecoFriendly').checked;
+        const inStock = document.getElementById('inStock').checked;
+        const newArrivals = document.getElementById('newArrivals').checked;
+        
+        let visibleCount = 0;
+        
+        searchableItems.forEach(item => {
+            const name = item.dataset.name;
+            const category = item.dataset.category;
+            const price = parseInt(item.dataset.price);
+            const isEco = item.dataset.eco === 'true';
+            const stock = parseInt(item.dataset.stock);
+            const isNew = isNewArrival(item.dataset.created);
+            
+            let show = true;
+            
+            // Search filter
+            if (searchTerm && !name.includes(searchTerm) && !category.includes(searchTerm)) {
+                show = false;
+            }
+            
+            // Category filter
+            if (selectedCategory && item.querySelector('.product-category').textContent.toLowerCase() !== selectedCategory.toLowerCase()) {
+                show = false;
+            }
+            
+            // Price filter
+            if (price > maxPrice) {
+                show = false;
+            }
+            
+            // Feature filters
+            if (ecoFriendly && !isEco) {
+                show = false;
+            }
+            
+            if (inStock && stock === 0) {
+                show = false;
+            }
+            
+            if (newArrivals && !isNew) {
+                show = false;
+            }
+            
+            if (show) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update results count
+        document.getElementById('resultsCount').textContent = visibleCount;
+    }
+    
+    function sortProducts(sortValue) {
+        const grid = document.getElementById('productsGrid');
+        const cards = Array.from(grid.children).filter(card => card.style.display !== 'none');
+        
+        cards.sort((a, b) => {
+            switch(sortValue) {
+                case 'name':
+                    return a.dataset.name.localeCompare(b.dataset.name);
+                case 'price_low':
+                    return parseInt(a.dataset.price) - parseInt(b.dataset.price);
+                case 'price_high':
+                    return parseInt(b.dataset.price) - parseInt(a.dataset.price);
+                case 'newest':
+                    return new Date(b.dataset.created) - new Date(a.dataset.created);
+                default:
+                    return 0;
+            }
+        });
+        
+        // Re-append sorted cards
+        cards.forEach(card => grid.appendChild(card));
+    }
+    
+    function isNewArrival(dateString) {
+        const productDate = new Date(dateString);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return productDate > weekAgo;
+    }
+});
+
+function clearAllFilters() {
+    // Reset search
+    document.getElementById('searchInput').value = '';
+    
+    // Reset category to "All"
+    document.getElementById('categorySelect').value = "";
+    
+    // Reset price range
+    document.getElementById('priceRange').value = 5000;
+    document.getElementById('priceValue').textContent = '5000';
+    
+    // Reset checkboxes
+    document.getElementById('ecoFriendly').checked = false;
+    document.getElementById('inStock').checked = false;
+    document.getElementById('newArrivals').checked = false;
+    
+    // Show all products
+    document.querySelectorAll('.searchable-item').forEach(item => {
+        item.style.display = '';
+    });
+    
+    // Update count
+    document.getElementById('resultsCount').textContent = document.querySelectorAll('.searchable-item').length;
+}
+</script>
+{% endblock %}

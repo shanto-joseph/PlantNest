@@ -1,0 +1,310 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Videos - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.my-videos-hero {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 3rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.my-videos-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.my-videos-content {
+    position: relative;
+    z-index: 2;
+}
+
+.videos-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin: -2rem 1rem 3rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 3;
+    border: 2px solid var(--celadon-2);
+}
+
+.videos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.videos-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.create-video-btn {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.create-video-btn:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.video-card {
+    background: #f8f9fa;
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.video-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.video-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.video-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.video-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.meta-item i {
+    color: var(--sea-green);
+}
+
+.video-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.status-published {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.video-description {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.video-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 2px solid;
+}
+
+.btn-view {
+    background: transparent;
+    color: var(--sea-green);
+    border-color: var(--sea-green);
+}
+
+.btn-view:hover {
+    background: var(--sea-green);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-edit {
+    background: transparent;
+    color: #f39c12;
+    border-color: #f39c12;
+}
+
+.btn-edit:hover {
+    background: #f39c12;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-delete {
+    background: transparent;
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.btn-delete:hover {
+    background: #e74c3c;
+    color: white;
+    text-decoration: none;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--nyanza);
+    border-radius: 15px;
+    border: 2px solid var(--celadon-2);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="my-videos-hero">
+    <div class="container my-videos-content">
+        <div class="text-center">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-video"></i> My Videos
+            </h1>
+            <p class="lead">Manage your video tutorials and share your gardening knowledge</p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'customer_interaction:community' %}">Community</a></li>
+            <li class="breadcrumb-item active">My Videos</li>
+        </ol>
+    </nav>
+
+    <div class="videos-container">
+        <div class="videos-header">
+            <h4 class="videos-title">
+                <i class="fas fa-video"></i> Your Video Posts
+            </h4>
+            <a href="{% url 'customer_interaction:create_video_post' %}" class="create-video-btn">
+                <i class="fas fa-plus"></i> Share New Video
+            </a>
+        </div>
+
+        {% if videos %}
+            {% for video in videos %}
+            <div class="video-card">
+                <div class="video-header">
+                    <div class="flex-grow-1">
+                        <h5 class="video-title">{{ video.title }}</h5>
+                        <div class="video-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                {{ video.created_at|date:"M d, Y" }}
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-link"></i>
+                                Video URL
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-description">
+                    {{ video.description|truncatewords:30 }}
+                </div>
+                
+                <div class="video-actions">
+                    <button class="btn-action btn-view" onclick="playVideo('{{ video.id }}')">
+                        <i class="fas fa-play"></i> Watch
+                    </button>
+                    
+                    <a href="{% url 'customer_interaction:delete_video_post' video.id %}" class="btn-action btn-delete">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                <h4>No videos yet</h4>
+                <p>Start sharing your gardening knowledge through video tutorials!</p>
+                <a href="{% url 'customer_interaction:create_video_post' %}" class="create-video-btn">
+                    <i class="fas fa-plus"></i> Share Your First Video
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function playVideo(videoId) {
+    // This would open the video in a modal or redirect to video page
+    alert(`Play video ${videoId} - functionality would be implemented here`);
+}
+</script>
+{% endblock %}

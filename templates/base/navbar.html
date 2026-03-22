@@ -1,0 +1,868 @@
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid">
+        <!-- Logo and Brand in Corner -->
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'product_management:home' %}">
+            <i class="fas fa-leaf navbar-logo-icon"></i>
+            <span class="navbar-brand-text">Plant & Garden Store</span>
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'product_management:home' %}">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'product_management:product_list' %}">
+                        <i class="fas fa-seedling"></i> Products
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'customer_interaction:blog_list' %}">
+                        <i class="fas fa-blog"></i> Blog
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'customer_interaction:community' %}">
+                        <i class="fas fa-users"></i> Community
+                    </a>
+                </li>
+            </ul>
+            
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link position-relative dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell position-relative">
+                                <span class="badge badge-danger badge-pill customer-notification-count" id="customerNotificationCount" style="display: none;">0</span>
+                            </i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right notification-dropdown" aria-labelledby="notificationDropdown" style="min-width: 350px; max-width: 400px;">
+                            {% if navbar_notifications and navbar_notifications|length > 0 %}
+                                {% for notification in navbar_notifications %}
+                                    <a class="dropdown-item small" href="{{ notification.action_url|default:'#' }}">
+                                        <div class="font-weight-bold">{{ notification.title }}</div>
+                                        <div class="text-muted">{{ notification.message|truncatechars:60 }}</div>
+                                        <div class="text-right text-secondary" style="font-size: 0.8em;">{{ notification.created_at|date:'M d, H:i' }}</div>
+                                    </a>
+                                    {% if not forloop.last %}<div class="dropdown-divider"></div>{% endif %}
+                                {% endfor %}
+                                <div class="dropdown-divider"></div>
+                            {% else %}
+                                <div class="dropdown-item text-center text-muted">No notifications</div>
+                                <div class="dropdown-divider"></div>
+                            {% endif %}
+                            <a class="dropdown-item text-center font-weight-bold" href="{% url 'customer_interaction:customer_notifications' %}">View All Notifications</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cart-toggle position-relative" href="#" onclick="toggleMiniCart(event)" style="cursor: pointer;">
+                            <i class="fas fa-shopping-cart cart-icon"></i> Cart
+                            <span class="badge badge-danger badge-pill cart-count" id="cartCount" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" class="navbar-profile-img" alt="Profile">
+                            {% else %}
+                                <div class="navbar-profile-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                            {{ user.get_full_name|default:user.username }}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{% url 'user_management:profile' %}">
+                                <i class="fas fa-user-circle"></i> Profile
+                            </a>
+                            <a class="dropdown-item" href="{% url 'customer_interaction:customer_notifications' %}">
+                                <i class="fas fa-bell"></i> Notifications
+                            </a>
+                            <a class="dropdown-item" href="{% url 'order_payment:order_history' %}">
+                                <i class="fas fa-history"></i> Order History
+                            </a>
+                            <a class="dropdown-item" href="{% url 'order_payment:view_cart' %}">
+                                <i class="fas fa-shopping-cart"></i> My Cart
+                            </a>
+                            {% if user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'order_payment:order_history' %}">
+                                <i class="fas fa-history"></i> My Orders
+                            </a>
+                        </li>
+                                <a class="dropdown-item" href="{% url 'admin_control:dashboard' %}">
+                                    <i class="fas fa-tachometer-alt"></i> Admin Panel
+                                </a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'user_management:logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user_management:login' %}">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-light btn-sm ml-2" href="{% url 'user_management:register' %}">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Mini Cart Sidebar -->
+<div class="mini-cart-overlay" id="miniCartOverlay" onclick="closeMiniCart()"></div>
+<div class="mini-cart-sidebar" id="miniCartSidebar">
+    <div class="mini-cart-header">
+        <div class="mini-cart-title">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Shopping Cart</span>
+        </div>
+        <button class="btn-close-cart" onclick="closeMiniCart()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="mini-cart-content" id="miniCartContent">
+        <div class="mini-cart-loading">
+            <i class="fas fa-spinner fa-spin"></i> Loading cart...
+        </div>
+    </div>
+    <div class="mini-cart-footer">
+        <div class="mini-cart-total">
+            <div class="total-label">Total:</div>
+            <div class="total-amount">₹<span id="miniCartTotal">0.00</span></div>
+        </div>
+        <div class="mini-cart-actions">
+            <a href="{% url 'order_payment:view_cart' %}" class="btn btn-outline-primary btn-sm btn-block">View Cart</a>
+            <a href="{% url 'order_payment:checkout' %}" class="btn btn-primary btn-sm btn-block mt-2">Checkout</a>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Enhanced Navbar Styles */
+.navbar {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    padding: 0.8rem 0;
+    transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+    background: rgba(27, 67, 50, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+/* Logo and Brand */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: white !important;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+    color: var(--celadon) !important;
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
+.navbar-logo-icon {
+    font-size: 1.8rem;
+    margin-right: 0.5rem;
+    color: var(--celadon);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand:hover .navbar-logo-icon {
+    color: white;
+    transform: rotate(360deg);
+}
+
+/* Profile Image in Navbar */
+.navbar-profile-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--celadon);
+    margin-right: 0.5rem;
+}
+
+.navbar-profile-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--celadon);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+    color: var(--dartmouth-green);
+}
+
+.navbar-brand-text {
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.5px;
+}
+
+/* Navigation Links */
+.navbar-nav .nav-link {
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: rgba(255,255,255,0.9) !important;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    margin: 0 0.2rem;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--celadon) !important;
+    background-color: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+}
+
+.navbar-nav .nav-link i {
+    margin-right: 0.3rem;
+}
+
+/* Cart Badge */
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 0.7rem;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mini Cart Sidebar */
+.mini-cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mini-cart-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mini-cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    transition: right 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-cart-sidebar.active {
+    right: 0;
+}
+
+.mini-cart-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid var(--celadon-2);
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mini-cart-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.mini-cart-title i {
+    font-size: 1.2rem;
+}
+
+.btn-close-cart {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: var(--dartmouth-green);
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close-cart:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--sea-green);
+    transform: scale(1.1);
+}
+
+.mini-cart-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    max-height: 400px;
+}
+
+.mini-cart-loading {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--dartmouth-green);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mini-cart-loading i {
+    font-size: 2rem;
+    color: var(--sea-green);
+}
+
+.mini-cart-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+    gap: 1rem;
+}
+
+.mini-cart-item:last-child {
+    border-bottom: none;
+}
+
+.mini-cart-item:hover {
+    background: var(--nyanza);
+}
+
+.mini-cart-item-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid var(--celadon-2);
+    flex-shrink: 0;
+}
+
+.mini-cart-item-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: var(--nyanza);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sea-green);
+    border: 2px solid var(--celadon-2);
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+.mini-cart-item-details {
+    flex: 1;
+}
+
+.mini-cart-item-name {
+    font-weight: 700;
+    color: var(--dartmouth-green);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.mini-cart-item-price {
+    color: var(--sea-green);
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.mini-cart-item-quantity {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.mini-cart-item-remove {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    margin-left: auto;
+}
+
+.mini-cart-item-remove:hover {
+    background: rgba(220, 53, 69, 0.1);
+    transform: scale(1.1);
+}
+
+.mini-cart-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6c757d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mini-cart-empty i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: var(--celadon-2);
+}
+
+.mini-cart-empty h6 {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.mini-cart-empty p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.mini-cart-footer {
+    padding: 1.5rem 1.5rem 1rem;
+    border-top: 2px solid var(--celadon-2);
+    background: white;
+}
+
+.mini-cart-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    border-radius: 12px;
+    border: 2px solid var(--celadon-2);
+}
+
+.total-label {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.total-amount {
+    color: var(--sea-green);
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.mini-cart-actions .btn {
+    font-weight: 700;
+    border-radius: 25px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    border: 2px solid;
+}
+
+.mini-cart-actions .btn-outline-primary {
+    color: var(--dartmouth-green);
+    border-color: var(--celadon-2);
+    background: transparent;
+}
+
+.mini-cart-actions .btn-outline-primary:hover {
+    background: var(--nyanza);
+    border-color: var(--sea-green);
+    color: var(--sea-green);
+    transform: translateY(-2px);
+}
+
+.mini-cart-actions .btn-primary {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-color: transparent;
+    color: white;
+}
+
+.mini-cart-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+    color: var(--dartmouth-green);
+}
+
+.dropdown-item:hover {
+    background-color: var(--nyanza);
+    color: var(--dartmouth-green);
+    transform: translateX(5px);
+}
+
+.dropdown-item i {
+    margin-right: 0.5rem;
+    width: 16px;
+}
+
+/* Register Button */
+.btn-outline-light {
+    border: 2px solid rgba(255,255,255,0.8);
+    color: white;
+    font-weight: 600;
+    padding: 0.4rem 1rem;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-light:hover {
+    background-color: white;
+    color: var(--dartmouth-green);
+    border-color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+}
+
+/* Mobile Navbar */
+.navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .navbar-nav {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .navbar-nav .nav-link {
+        margin: 0.2rem 0;
+    }
+    
+    .navbar-brand-text {
+        font-size: 1.1rem;
+    }
+    
+    .dropdown-menu {
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-brand-text {
+        display: none;
+    }
+    
+    .navbar-logo-icon {
+        font-size: 1.5rem;
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .mini-cart-sidebar {
+        width: 100%;
+        right: -100%;
+    }
+}
+
+/* Scroll Effect */
+.navbar-scroll-effect {
+    transition: all 0.3s ease;
+}
+
+.navbar-scroll-effect.scrolled {
+    padding: 0.5rem 0;
+    background: rgba(27, 67, 50, 0.95);
+}
+</style>
+
+<script>
+// Mini Cart Functions
+function toggleMiniCart(event) {
+    event.preventDefault();
+    const sidebar = document.getElementById('miniCartSidebar');
+    const overlay = document.getElementById('miniCartOverlay');
+    
+    if (sidebar.classList.contains('active')) {
+        closeMiniCart();
+    } else {
+        openMiniCart();
+    }
+}
+
+function openMiniCart() {
+    const sidebar = document.getElementById('miniCartSidebar');
+    const overlay = document.getElementById('miniCartOverlay');
+    
+    sidebar.classList.add('active');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Load cart content
+    loadMiniCartContent();
+}
+
+function closeMiniCart() {
+    const sidebar = document.getElementById('miniCartSidebar');
+    const overlay = document.getElementById('miniCartOverlay');
+    
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function loadMiniCartContent() {
+    const content = document.getElementById('miniCartContent');
+    
+    // Show loading state
+    content.innerHTML = `
+        <div class="mini-cart-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Loading cart...</span>
+        </div>
+    `;
+    
+    // Fetch cart data from API endpoint
+    fetch('/orders/cart-count/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.count === 0) {
+            showEmptyCart();
+        } else {
+            // Fetch detailed cart data
+            return fetch('/orders/cart/')
+                .then(response => response.text())
+                .then(html => parseCartData(html));
+        }
+    })
+    .catch(error => {
+        console.error('Error loading cart:', error);
+        showErrorState();
+    });
+}
+
+function parseCartData(html) {
+    const content = document.getElementById('miniCartContent');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Extract cart items from the cart page
+    const cartItems = doc.querySelectorAll('.cart-item');
+    
+    if (cartItems.length === 0) {
+        showEmptyCart();
+        return;
+    }
+    
+    let total = 0;
+    let itemsHtml = '';
+    let totalItems = 0;
+    
+    cartItems.forEach((cartItem) => {
+        // Extract item data from cart page
+        const nameElement = cartItem.querySelector('.item-name');
+        const priceElement = cartItem.querySelector('.item-price');
+        const quantityElement = cartItem.querySelector('.quantity-input');
+        const imageElement = cartItem.querySelector('.item-image');
+        const removeLink = cartItem.querySelector('.btn-remove');
+        
+        if (nameElement && priceElement && quantityElement) {
+            const name = nameElement.textContent.trim();
+            const priceText = priceElement.textContent.replace('₹', '').replace(' each', '').trim();
+            const price = parseFloat(priceText) || 0;
+            const quantity = parseInt(quantityElement.value) || 1;
+            const itemTotal = price * quantity;
+            const removeUrl = removeLink ? removeLink.getAttribute('href') : '#';
+            
+            total += itemTotal;
+            totalItems += quantity;
+            
+            itemsHtml += `
+                <div class="mini-cart-item">
+                    ${imageElement ? 
+                        `<img src="${imageElement.src}" class="mini-cart-item-image" alt="${name}">` :
+                        `<div class="mini-cart-item-placeholder"><i class="fas fa-seedling"></i></div>`
+                    }
+                    <div class="mini-cart-item-details">
+                        <div class="mini-cart-item-name">${name}</div>
+                        <div class="mini-cart-item-quantity">Qty: ${quantity}</div>
+                        <div class="mini-cart-item-price">₹${itemTotal.toFixed(2)}</div>
+                    </div>
+                    <button class="mini-cart-item-remove" onclick="removeFromMiniCart('${removeUrl}')" title="Remove item">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        }
+    });
+    
+    content.innerHTML = itemsHtml;
+    
+    // Update totals
+    const totalElement = document.getElementById('miniCartTotal');
+    const cartCountElement = document.getElementById('cartCount');
+    
+    if (totalElement) {
+        totalElement.textContent = total.toFixed(2);
+    }
+    
+    if (cartCountElement) {
+        cartCountElement.textContent = totalItems;
+        cartCountElement.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
+}
+
+function showEmptyCart() {
+    const content = document.getElementById('miniCartContent');
+    content.innerHTML = `
+        <div class="mini-cart-empty">
+            <i class="fas fa-shopping-cart"></i>
+            <h6>Your cart is empty</h6>
+            <p>Add some beautiful plants to get started!</p>
+        </div>
+    `;
+    
+    // Update totals
+    const totalElement = document.getElementById('miniCartTotal');
+    const cartCountElement = document.getElementById('cartCount');
+    
+    if (totalElement) {
+        totalElement.textContent = '0.00';
+    }
+    
+    if (cartCountElement) {
+        cartCountElement.style.display = 'none';
+    }
+}
+
+function showErrorState() {
+    const content = document.getElementById('miniCartContent');
+    content.innerHTML = `
+        <div class="mini-cart-empty">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h6>Error loading cart</h6>
+            <p>Please try again later</p>
+        </div>
+    `;
+}
+
+function removeFromMiniCart(removeUrl) {
+    if (!removeUrl || removeUrl === '#') return;
+    
+    if (confirm('Remove this item from your cart?')) {
+        // Show loading state
+        const content = document.getElementById('miniCartContent');
+        content.innerHTML = `
+            <div class="mini-cart-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Removing item...</span>
+            </div>
+        `;
+        
+        // Navigate to remove URL
+        window.location.href = removeUrl;
+    }
+}
+
+// Update cart count on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount();
+});
+
+function updateCartCount() {
+    fetch('/orders/cart-count/')
+    .then(response => response.json())
+    .then(data => {
+        const cartCountElement = document.getElementById('cartCount');
+        if (cartCountElement) {
+            if (data.count > 0) {
+                cartCountElement.textContent = data.count > 99 ? '99+' : data.count;
+                cartCountElement.style.display = 'flex';
+            } else {
+                cartCountElement.style.display = 'none';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching cart count:', error);
+    });
+}
+
+// Navbar scroll effect
+window.addEventListener('scroll', function() {
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+});
+</script>

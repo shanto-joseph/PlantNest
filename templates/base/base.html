@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}Plant & Gardening Store{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Customer Theme CSS -->
+    <link href="{% static 'css/customer.css' %}" rel="stylesheet">
+    
+    <link rel="icon" type="image/x-icon" href="/media/favicon/favicon.ico">
+    
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body {% if user.is_authenticated %}data-user-authenticated="true"{% endif %}>
+    <!-- Navigation -->
+    {% include 'base/navbar.html' %}
+    
+
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-leaf"></i> Plant & Garden Store</h5>
+                    <p>Your trusted partner in creating beautiful, sustainable gardens. We provide high-quality plants, expert care guides, and a supportive community for all your gardening needs.</p>
+                    <div class="social-links">
+                        <a href="#" class="mr-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="mr-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="mr-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-youtube fa-lg"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Shop</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'product_management:product_list' %}">All Products</a></li>
+                        <li><a href="{% url 'product_management:product_list' %}?type=plant">Plants</a></li>
+                        <li><a href="{% url 'product_management:product_list' %}?type=seed">Seeds</a></li>
+                        <li><a href="{% url 'product_management:product_list' %}?type=tool">Tools</a></li>
+                        <li><a href="{% url 'product_management:product_list' %}?type=pot">Pots</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Community</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'customer_interaction:blog_list' %}">Blog</a></li>
+                        <li><a href="{% url 'customer_interaction:video_gallery' %}">Videos</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Account</h5>
+                    <ul class="list-unstyled">
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'user_management:profile' %}">My Profile</a></li>
+                            <li><a href="{% url 'order_payment:view_cart' %}">My Cart</a></li>
+                            <li><a href="{% url 'user_management:logout' %}">Logout</a></li>
+                        {% else %}
+                            <li><a href="{% url 'user_management:login' %}">Login</a></li>
+                            <li><a href="{% url 'user_management:register' %}">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Support</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: var(--celadon-2);">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 Plant & Garden Store. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-right">
+                    <p class="mb-0">
+                        <a href="#">Privacy Policy</a> | 
+                        <a href="#">Terms of Service</a> | 
+                        <a href="#">Cookie Policy</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Customer Theme JS -->
+    <script src="{% static 'js/customer.js' %}"></script>
+    
+    <!-- Chat Widget (only for authenticated customers) -->
+    {% if user.is_authenticated and not user.is_admin %}
+        {% include 'customer/chat_widget.html' %}
+    {% endif %}
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

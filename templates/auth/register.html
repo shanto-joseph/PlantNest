@@ -1,0 +1,398 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Register - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.register-page {
+    min-height: 100vh;
+    background: linear-gradient(158deg, #e9ecef 0%, #155724bf 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.register-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 1rem;
+}
+
+.register-left {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-left::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.register-right {
+    padding: 3rem;
+}
+
+.brand-logo {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--celadon);
+}
+
+.welcome-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.welcome-subtitle {
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.benefits-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+.benefits-list li {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+}
+
+.benefits-list i {
+    margin-right: 0.5rem;
+    color: var(--celadon);
+}
+
+.register-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--dartmouth-green);
+}
+
+.form-title h2 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+    flex: 1;
+}
+
+.form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    width: 100%;
+}
+
+.form-control:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+    background: white;
+    transform: translateY(-2px);
+}
+
+.form-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 2;
+}
+
+.btn-register {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    width: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-register:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(64, 145, 108, 0.3);
+}
+
+.btn-register::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-register:hover::before {
+    left: 100%;
+}
+
+.login-link {
+    text-align: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}
+
+.login-link a {
+    color: var(--dartmouth-green);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+    color: var(--sea-green);
+}
+
+.password-strength {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.strength-weak { color: #dc3545; }
+.strength-medium { color: #ffc107; }
+.strength-strong { color: #28a745; }
+
+.floating-elements {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.floating-element {
+    position: absolute;
+    opacity: 0.1;
+    animation: float-up 15s infinite linear;
+}
+
+.floating-element:nth-child(1) { left: 10%; animation-delay: 0s; }
+.floating-element:nth-child(2) { left: 20%; animation-delay: 2s; }
+.floating-element:nth-child(3) { left: 30%; animation-delay: 4s; }
+.floating-element:nth-child(4) { left: 40%; animation-delay: 6s; }
+.floating-element:nth-child(5) { left: 50%; animation-delay: 8s; }
+
+@keyframes float-up {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+    }
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .register-container {
+        margin: 1rem;
+    }
+    
+    .register-left {
+        padding: 2rem;
+    }
+    
+    .register-right {
+        padding: 2rem;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .welcome-text {
+        font-size: 1.3rem;
+    }
+    
+    .brand-logo {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-page">
+    <div class="floating-elements">
+        <i class="fas fa-leaf floating-element fa-2x"></i>
+        <i class="fas fa-seedling floating-element fa-2x"></i>
+        <i class="fas fa-tree floating-element fa-2x"></i>
+        <i class="fas fa-flower floating-element fa-2x"></i>
+        <i class="fas fa-spa floating-element fa-2x"></i>
+    </div>
+    
+    <div class="register-container">
+        <div class="row no-gutters h-100">
+            <div class="col-lg-5 register-left">
+                <div class="brand-logo">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h1 class="welcome-text">Join Our Community!</h1>
+                <p class="welcome-subtitle">Start your gardening journey with us</p>
+                
+                <ul class="benefits-list">
+                    <li><i class="fas fa-seedling"></i> Expert gardening advice</li>
+                    <li><i class="fas fa-users"></i> Connect with fellow gardeners</li>
+                    <li><i class="fas fa-gift"></i> Exclusive member discounts</li>
+                    <li><i class="fas fa-bell"></i> Plant care reminders</li>
+                    <li><i class="fas fa-book-open"></i> Access to premium content</li>
+                    <li><i class="fas fa-shipping-fast"></i> Free shipping on orders</li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-7 register-right">
+                <div class="register-form">
+                    <div class="form-title">
+                        <h2>Create Account</h2>
+                        <p class="text-muted">Fill in your details to get started</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <i class="fas fa-user form-icon"></i>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <small class="text-danger">{{ form.username.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <i class="fas fa-envelope form-icon"></i>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <small class="text-danger">{{ form.email.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <i class="fas fa-phone form-icon"></i>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <small class="text-danger">{{ form.phone_number.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <i class="fas fa-lock form-icon"></i>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <small class="text-danger">{{ form.password1.errors.0 }}</small>
+                            {% endif %}
+                            <div class="password-strength" id="passwordStrength"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <i class="fas fa-lock form-icon"></i>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <small class="text-danger">{{ form.password2.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-register">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                    </form>
+                    
+                    <div class="login-link">
+                        <p class="mb-0">Already have an account? 
+                            <a href="{% url 'user_management:login' %}">Sign in here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('{{ form.password1.id_for_label }}');
+    const strengthIndicator = document.getElementById('passwordStrength');
+    
+    if (passwordInput && strengthIndicator) {
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = checkPasswordStrength(password);
+            
+            strengthIndicator.className = 'password-strength strength-' + strength.level;
+            strengthIndicator.textContent = strength.text;
+        });
+    }
+});
+
+function checkPasswordStrength(password) {
+    let score = 0;
+    
+    if (password.length >= 8) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    
+    if (score < 3) {
+        return { level: 'weak', text: 'Weak password' };
+    } else if (score < 4) {
+        return { level: 'medium', text: 'Medium strength' };
+    } else {
+        return { level: 'strong', text: 'Strong password' };
+    }
+}
+</script>
+{% endblock %}

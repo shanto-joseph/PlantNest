@@ -1,0 +1,230 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Plant & Gardening Store{% endblock %}
+
+{% block content %}
+<!-- Admin Landing Hero -->
+<div class="admin-landing-hero">
+    <div class="admin-landing-content">
+        <h1 class="display-3 mb-3">
+            <i class="fas fa-leaf"></i> Welcome to Admin Panel
+        </h1>
+        <p class="lead">Manage your plant store efficiently and grow your business</p>
+        <div class="mt-4">
+            <a href="{% url 'admin_control:add_product' %}" class="btn btn-light btn-lg mr-3">
+                <i class="fas fa-plus"></i> Add Product
+            </a>
+            <a href="{% url 'admin_control:manage_orders' %}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-clipboard-list"></i> View Orders
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card stat-products">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="stat-number">{{ total_products }}</h3>
+                        <p class="stat-label">Total Products</p>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card stat-users">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="stat-number">{{ total_users }}</h3>
+                        <p class="stat-label">Total Customers</p>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card stat-orders">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="stat-number">{{ total_orders }}</h3>
+                        <p class="stat-label">Total Orders</p>
+                        <small class="text-warning">{{ pending_orders }} pending</small>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card stat-revenue">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="stat-number">₹{{ monthly_revenue|floatformat:0 }}</h3>
+                        <p class="stat-label">Monthly Revenue</p>
+                        <small class="text-success">Last 30 days</small>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Cards for Quick Actions -->
+<div class="welcome-cards">
+    <div class="welcome-card">
+        <div class="welcome-icon">
+            <i class="fas fa-seedling"></i>
+        </div>
+        <h5 class="welcome-title">Manage Products</h5>
+        <p class="welcome-description">Add new plants, update inventory, and organize your product catalog</p>
+        <a href="{% url 'admin_control:manage_products' %}" class="welcome-action">
+            <i class="fas fa-boxes"></i> View Products
+        </a>
+    </div>
+    
+    <div class="welcome-card">
+        <div class="welcome-icon">
+            <i class="fas fa-shopping-bag"></i>
+        </div>
+        <h5 class="welcome-title">Track Orders</h5>
+        <p class="welcome-description">Monitor customer orders, update shipping status, and manage fulfillment</p>
+        <a href="{% url 'admin_control:manage_orders' %}" class="welcome-action">
+            <i class="fas fa-clipboard-list"></i> View Orders
+        </a>
+    </div>
+    
+    <div class="welcome-card">
+        <div class="welcome-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <h5 class="welcome-title">Customer Management</h5>
+        <p class="welcome-description">View customer profiles, manage accounts, and track user activity</p>
+        <a href="{% url 'admin_control:manage_users' %}" class="welcome-action">
+            <i class="fas fa-user-friends"></i> View Customers
+        </a>
+    </div>
+    
+    <div class="welcome-card">
+        <div class="welcome-icon">
+            <i class="fas fa-blog"></i>
+        </div>
+        <h5 class="welcome-title">Content & Blog</h5>
+        <p class="welcome-description">Create engaging blog posts, manage content, and share gardening tips</p>
+        <a href="{% url 'admin_control:manage_content' %}" class="welcome-action">
+            <i class="fas fa-edit"></i> Manage Content
+        </a>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mt-5">
+    <div class="col-lg-6 mb-4">
+        <div class="admin-card recent-orders-card">
+            <div class="card-header">
+                <h5><i class="fas fa-clock"></i> Recent Orders</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_orders %}
+                <div class="table-responsive">
+                    <table class="table table-sm admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td>{{ order.order_number }}</td>
+                                <td>{{ order.user.username }}</td>
+                                <td>
+                                    <span class="badge badge-{% if order.status == 'delivered' %}success{% elif order.status == 'shipped' %}info{% elif order.status == 'processing' %}warning{% else %}secondary{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>{{ order.created_at|date:"M d" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'admin_control:manage_orders' %}" class="btn btn-outline-primary btn-sm">View All Orders</a>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                    <h6>No recent orders</h6>
+                    <p class="text-muted">Orders will appear here when customers start purchasing.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="admin-card recent-users-card">
+            <div class="card-header">
+                <h5><i class="fas fa-user-plus"></i> New Customers</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                <div class="table-responsive">
+                    <table class="table table-sm admin-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in recent_users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.date_joined|date:"M d" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'admin_control:manage_users' %}" class="btn btn-outline-primary btn-sm">View All Users</a>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h6>No new customers</h6>
+                    <p class="text-muted">New customer registrations will appear here.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

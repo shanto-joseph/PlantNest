@@ -1,0 +1,107 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Delete Review - {{ review.product.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="hero-section mb-4">
+        <div class="text-center">
+            <h1 class="display-4"><i class="fas fa-trash"></i> Delete Review</h1>
+            <p class="lead">Are you sure you want to delete your review?</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'product_management:product_detail' review.product.id %}">{{ review.product.name }}</a></li>
+                    <li class="breadcrumb-item active">Delete Review</li>
+                </ol>
+            </nav>
+            
+            <div class="card delete-confirmation-card">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-warning"></i>
+                        <strong>Warning:</strong> This action cannot be undone.
+                    </div>
+                    
+                    <div class="review-preview">
+                        <h6>Review to be deleted:</h6>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    {% if review.product.image %}
+                                        <img src="{{ review.product.image.url }}" class="review-thumb mr-3" alt="{{ review.product.name }}">
+                                    {% else %}
+                                        <div class="review-thumb-placeholder mr-3">
+                                            <i class="fas fa-seedling"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title mb-1">{{ review.title }}</h6>
+                                        <div class="mb-2">
+                                            {% for i in review.get_star_range %}
+                                                <span class="text-warning">
+                                                    {% if i <= review.rating %}★{% else %}☆{% endif %}
+                                                </span>
+                                            {% endfor %}
+                                            <span class="ml-2 text-muted">{{ review.get_rating_display }}</span>
+                                        </div>
+                                        <p class="card-text text-muted mb-1">{{ review.review_message|truncatechars:150 }}</p>
+                                        <small class="text-muted">
+                                            Product: {{ review.product.name }} | 
+                                            Created: {{ review.created_at|date:"M d, Y" }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions mt-4">
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-trash"></i> Yes, Delete Review
+                            </button>
+                        </form>
+                        <a href="{% url 'product_management:product_detail' review.product.id %}" class="btn btn-outline-secondary btn-lg ml-2">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.review-thumb {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+}
+
+.review-thumb-placeholder {
+    width: 80px;
+    height: 80px;
+    background: var(--nyanza);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 2px solid var(--celadon-2);
+    color: var(--sea-green);
+    font-size: 2rem;
+}
+</style>
+{% endblock %}

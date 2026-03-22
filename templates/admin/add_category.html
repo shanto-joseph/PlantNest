@@ -1,0 +1,108 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Add Category - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1><i class="fas fa-plus-circle"></i> Add New Category</h1>
+            <p class="text-muted">Create a new category to organize your products</p>
+        </div>
+        <div class="col-lg-4 text-right">
+            <a href="{% url 'admin_control:manage_categories' %}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left"></i> Back to Categories
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <form method="post" enctype="multipart/form-data" class="admin-form">
+            {% csrf_token %}
+            <div class="card category-form-card">
+                <div class="card-header">
+                    <h5><i class="fas fa-tag"></i> Category Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-section">
+                        <h6 class="section-title">Basic Information</h6>
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">Category Name *</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <small class="text-danger">{{ form.name.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <small class="text-danger">{{ form.description.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.image.id_for_label }}">Upload Image</label>
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                                <small class="text-danger">{{ form.image.errors.0 }}</small>
+                            {% endif %}
+                            <div class="image-preview" id="imagePreview" style="display: none;">
+                                <!-- New image preview will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions mt-3">
+                        <button type="submit" class="btn btn-admin-primary btn-lg">
+                            <i class="fas fa-save"></i> Save Category
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-4">
+        <div class="sidebar">
+            <!-- Tips -->
+            <div class="card tips-card">
+                <div class="card-header">
+                    <h6><i class="fas fa-lightbulb"></i> Category Tips</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="tips-list">
+                        <li><strong>Clear Names</strong> - Use descriptive, easy-to-understand names</li>
+                        <li><strong>Logical Organization</strong> - Group similar products together</li>
+                        <li><strong>Visual Appeal</strong> - Add attractive category images</li>
+                        <li><strong>SEO Friendly</strong> - Use keywords customers might search for</li>
+                        <li><strong>Consistent Structure</strong> - Maintain similar category levels</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Image preview functionality
+const imageInput = document.getElementById('{{ form.image.id_for_label }}');
+const preview = document.getElementById('imagePreview');
+imageInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `
+                <h6>New Image Preview:</h6>
+                <img src="${e.target.result}" class="img-fluid rounded" alt="Preview">
+            `;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <div class="card shadow-sm admin-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-user-plus"></i> Add User</h4>
+                    <a href="{% url 'admin_control:manage_users' %}" class="btn btn-admin-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="admin-form">
+                        {% csrf_token %}
+                        <div class="form-section">
+                            <div class="section-title mb-3">User Details</div>
+                            {# Render all fields except is_active #}
+                            {% for field in form.visible_fields %}
+                                {% if field.name != 'is_active' %}
+                                    <div class="mb-3">
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                        {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+                                        {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="form-section mb-3 pt-2 pb-2" style="border: 1px solid var(--celadon-2); border-radius: 8px; background: var(--nyanza);">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="id_is_active">{{ form.is_active.label }}</label>
+                                {% if form.is_active.help_text %}<small class="form-text text-muted">{{ form.is_active.help_text }}</small>{% endif %}
+                                {% for error in form.is_active.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-actions mt-4">
+                            <button type="submit" class="btn btn-admin-success btn-block w-100 py-2"><i class="fas fa-save"></i> Save User</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

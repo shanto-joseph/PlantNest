@@ -1,0 +1,208 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Add New Product - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1><i class="fas fa-plus-circle"></i> Add New Product</h1>
+            <p class="text-muted">Create a new product for your store</p>
+        </div>
+        <div class="col-lg-4 text-right">
+            <a href="{% url 'admin_control:manage_products' %}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left"></i> Back to Products
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card product-form-card">
+            <div class="card-header">
+                <h5><i class="fas fa-seedling"></i> Product Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" class="admin-form">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h6 class="section-title">Basic Information</h6>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label for="{{ form.name.id_for_label }}">Product Name *</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <small class="text-danger">{{ form.name.errors.0 }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="{{ form.price.id_for_label }}">Price *</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">₹</span>
+                                        </div>
+                                        {{ form.price }}
+                                    </div>
+                                    {% if form.price.errors %}
+                                        <small class="text-danger">{{ form.price.errors.0 }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">Description *</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <small class="text-danger">{{ form.description.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.category.id_for_label }}">Category *</label>
+                                    {{ form.category }}
+                                    <div id="categoryImagePreview" style="margin-top: 0.5rem;"></div>
+                                    {% if form.category.errors %}
+                                        <small class="text-danger">{{ form.category.errors.0 }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.stock_quantity.id_for_label }}">Stock Quantity *</label>
+                                    {{ form.stock_quantity }}
+                                    {% if form.stock_quantity.errors %}
+                                        <small class="text-danger">{{ form.stock_quantity.errors.0 }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Settings -->
+                    <div class="form-section">
+                        <h6 class="section-title">Product Settings</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    {{ form.is_eco_friendly }}
+                                    <label class="form-check-label" for="{{ form.is_eco_friendly.id_for_label }}">
+                                        <i class="fas fa-leaf text-success"></i> Eco-Friendly Product
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                        <i class="fas fa-eye text-primary"></i> Active (Visible to customers)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Image Upload (moved from sidebar) -->
+                    <div class="form-group">
+                        <label for="{{ form.image.id_for_label }}">Upload Image</label>
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                            <small class="text-danger">{{ form.image.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" name="save" class="btn btn-admin-primary btn-lg">
+                            <i class="fas fa-save"></i> Save Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="sidebar">
+            <!-- Image Upload -->
+            <div class="card image-card mb-4">
+                <div class="card-header">
+                    <h6><i class="fas fa-image"></i> Product Image</h6>
+                </div>
+                <div class="card-body">
+                    <div class="image-preview" id="imagePreview">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                            <p class="text-muted">Image preview will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tips -->
+            <div class="card tips-card">
+                <div class="card-header">
+                    <h6><i class="fas fa-lightbulb"></i> Product Tips</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="tips-list">
+                        <li><strong>High-Quality Images</strong> - Use clear, well-lit photos</li>
+                        <li><strong>Product Descriptions</strong> - Include care instructions and benefits</li>
+                        <li><strong>Competitive Pricing</strong> - Research market rates for competitive pricing</li>
+                        <li><strong>Stock Management</strong> - Keep inventory levels updated</li>
+                        <li><strong>SEO Friendly</strong> - Use descriptive names and keywords</li>
+                        <li><strong>Categories</strong> - Choose appropriate categories for better organization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Image preview functionality
+document.getElementById('{{ form.image.id_for_label }}').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = `
+            <div class="preview-placeholder">
+                <i class="fas fa-image fa-3x text-muted"></i>
+                <p class="text-muted">Image preview will appear here</p>
+            </div>
+        `;
+    }
+});
+
+// Category image preview
+const categoryImages = {{ form.category_images|safe }};
+const categorySelect = document.getElementById('{{ form.category.id_for_label }}');
+const categoryImagePreview = document.getElementById('categoryImagePreview');
+function updateCategoryImage() {
+    const selected = categorySelect.value;
+    const imgUrl = categoryImages[selected];
+    if (imgUrl) {
+        categoryImagePreview.innerHTML = `<img src="${imgUrl}" alt="Category Image" style="max-width: 100px; max-height: 60px; border-radius: 8px; border: 1px solid #ccc;">`;
+    } else {
+        categoryImagePreview.innerHTML = '';
+    }
+}
+categorySelect.addEventListener('change', updateCategoryImage);
+window.addEventListener('DOMContentLoaded', updateCategoryImage);
+</script>
+{% endblock %}

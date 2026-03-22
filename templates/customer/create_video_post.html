@@ -1,0 +1,737 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Share Your Video - Plant & Gardening Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.video-create-container {
+    background: linear-gradient(135deg, var(--nyanza) 0%, #f8f9fa 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.page-header {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+    text-align: center;
+}
+
+.page-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.page-subtitle {
+    color: #6c757d;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.form-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--celadon-2);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.section-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+}
+
+.section-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.form-label.required::after {
+    content: ' *';
+    color: #dc3545;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    font-family: inherit;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--sea-green);
+    background: white;
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+    transform: translateY(-2px);
+}
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.video-source-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+    border: 2px solid var(--celadon-2);
+}
+
+.tab-button {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-button.active {
+    background: white;
+    color: var(--dartmouth-green);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.file-upload-area {
+    border: 2px dashed var(--celadon-2);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.file-upload-area:hover {
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+}
+
+.upload-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.upload-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.5rem;
+}
+
+.upload-hint {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.file-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.url-input-group {
+    position: relative;
+}
+
+.url-prefix {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 1.1rem;
+    z-index: 2;
+}
+
+.url-input {
+    padding-left: 3rem;
+}
+
+.character-counter {
+    text-align: right;
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.character-counter.warning {
+    color: #f59e0b;
+}
+
+.character-counter.danger {
+    color: #dc3545;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--celadon-2);
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(64, 145, 108, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(64, 145, 108, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border: 2px solid var(--celadon-2);
+}
+
+.btn-secondary:hover {
+    background: var(--nyanza);
+    border-color: var(--sea-green);
+    color: var(--sea-green);
+    text-decoration: none;
+}
+
+.tips-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+}
+
+.tips-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    color: var(--dartmouth-green);
+}
+
+.tips-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.tips-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.tip-item {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: var(--nyanza);
+    border-radius: 12px;
+    border-left: 4px solid var(--sea-green);
+    transition: all 0.3s ease;
+}
+
+.tip-item:hover {
+    background: white;
+    transform: translateX(4px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.tip-title {
+    font-weight: 600;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.25rem;
+}
+
+.tip-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .video-create-container {
+        padding: 1rem 0;
+    }
+    
+    .form-container {
+        padding: 2rem 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .tips-card {
+        position: static;
+        margin-top: 2rem;
+    }
+    
+    .video-source-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="video-create-container">
+    <div class="container-fluid">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-video"></i> Share Your Video
+            </h1>
+            <p class="page-subtitle">Upload your gardening video or share a link to inspire others</p>
+        </div>
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'product_management:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'customer_interaction:video_gallery' %}">Videos</a></li>
+                <li class="breadcrumb-item active">Share Video</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="form-container">
+                    <form method="post" enctype="multipart/form-data" id="videoForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <h3 class="section-title">Video Information</h3>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="title" class="form-label required">Video Title</label>
+                                <input type="text" 
+                                       id="title" 
+                                       name="title" 
+                                       class="form-input" 
+                                       placeholder="Enter an engaging title for your video tutorial"
+                                       maxlength="200"
+                                       required>
+                                <div class="character-counter" id="titleCounter">0/200 characters</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="description" class="form-label required">Description</label>
+                                <textarea id="description" 
+                                          name="description" 
+                                          class="form-input form-textarea" 
+                                          placeholder="Describe what viewers will learn from your video. Include key points and any tips you want to share."
+                                          required></textarea>
+                                <div class="character-counter" id="descriptionCounter">0 characters</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Video Source -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-video"></i>
+                                </div>
+                                <h3 class="section-title">Video Source</h3>
+                            </div>
+                            
+                            <div class="video-source-tabs">
+                                <button type="button" class="tab-button active" data-tab="url">
+                                    <i class="fas fa-link"></i> Video URL
+                                </button>
+                                <button type="button" class="tab-button" data-tab="upload">
+                                    <i class="fas fa-upload"></i> Upload Video
+                                </button>
+                            </div>
+                            
+                            <!-- URL Tab (Default) -->
+                            <div class="tab-content active" id="url-tab">
+                                <div class="form-group">
+                                    <label for="video_url" class="form-label">Video URL</label>
+                                    <div class="url-input-group">
+                                        <i class="fas fa-link url-prefix"></i>
+                                        <input type="url" 
+                                               id="video_url" 
+                                               name="video_url" 
+                                               class="form-input url-input" 
+                                               placeholder="https://youtube.com/watch?v=... or https://vimeo.com/...">
+                                    </div>
+                                    <small class="text-muted">Paste the URL of your video from YouTube, Vimeo, or other platforms</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Upload Tab -->
+                            <div class="tab-content" id="upload-tab">
+                                <div class="form-group">
+                                    <label class="form-label">Upload Video File</label>
+                                    <div class="file-upload-area" id="videoUploadArea">
+                                        <div class="upload-icon">
+                                            <i class="fas fa-video"></i>
+                                        </div>
+                                        <div class="upload-text">Drop your video here or click to browse</div>
+                                        <div class="upload-hint">MP4, MOV, AVI up to 100MB</div>
+                                        <input type="file" 
+                                               id="video_file" 
+                                               name="video_file" 
+                                               class="file-input" 
+                                               accept="video/*">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Video Preview -->
+                            <div id="videoPreview" style="display: none; margin-top: 1rem;">
+                                <h6>Video Preview:</h6>
+                                <video controls style="width: 100%; max-width: 400px; border-radius: 12px;">
+                                    <source id="videoSource" src="" type="">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+                        
+                        <!-- Thumbnail (Optional) -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <h3 class="section-title">Thumbnail Image (Optional)</h3>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Upload Thumbnail</label>
+                                <div class="file-upload-area" id="thumbnailUploadArea">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                    <div class="upload-text">Drop your thumbnail here or click to browse</div>
+                                    <div class="upload-hint">PNG, JPG up to 10MB</div>
+                                    <input type="file" 
+                                           id="thumbnail" 
+                                           name="thumbnail" 
+                                           class="file-input" 
+                                           accept="image/*">
+                                </div>
+                            </div>
+                            
+                            <!-- Thumbnail Preview -->
+                            <div id="thumbnailPreview" style="display: none; margin-top: 1rem;">
+                                <h6>Thumbnail Preview:</h6>
+                                <img id="thumbnailImage" src="" alt="Thumbnail Preview" 
+                                     style="width: 100%; max-width: 300px; border-radius: 12px;">
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-share"></i>
+                                Publish Video
+                            </button>
+                            <a href="{% url 'customer_interaction:video_gallery' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="tips-card">
+                    <div class="tips-header">
+                        <div class="tips-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 class="tips-title">Video Tips</h3>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Clear Audio</div>
+                        <div class="tip-description">Ensure your voice is clear and background noise is minimal for better viewer experience</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Good Lighting</div>
+                        <div class="tip-description">Film in well-lit conditions, preferably natural light, to showcase plants clearly</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Step-by-Step</div>
+                        <div class="tip-description">Break down complex processes into clear, easy-to-follow steps</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Engaging Content</div>
+                        <div class="tip-description">Keep tutorials focused and engaging - typically 5-15 minutes work best</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Share Knowledge</div>
+                        <div class="tip-description">Focus on practical tips that will genuinely help other gardeners</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked button and corresponding content
+            this.classList.add('active');
+            document.getElementById(tabId + '-tab').classList.add('active');
+        });
+    });
+    
+    // Character counting
+    const titleInput = document.getElementById('title');
+    const descriptionInput = document.getElementById('description');
+    const titleCounter = document.getElementById('titleCounter');
+    const descriptionCounter = document.getElementById('descriptionCounter');
+    
+    function updateCounter(input, counter, maxLength = null) {
+        const count = input.value.length;
+        if (maxLength) {
+            counter.textContent = `${count}/${maxLength} characters`;
+            if (count > maxLength * 0.9) {
+                counter.className = 'character-counter danger';
+            } else if (count > maxLength * 0.8) {
+                counter.className = 'character-counter warning';
+            } else {
+                counter.className = 'character-counter';
+            }
+        } else {
+            counter.textContent = `${count} characters`;
+        }
+    }
+    
+    titleInput.addEventListener('input', () => updateCounter(titleInput, titleCounter, 200));
+    descriptionInput.addEventListener('input', () => updateCounter(descriptionInput, descriptionCounter));
+    
+    // File upload handling
+    const videoUploadArea = document.getElementById('videoUploadArea');
+    const videoFileInput = document.getElementById('video_file');
+    const videoPreview = document.getElementById('videoPreview');
+    const videoSource = document.getElementById('videoSource');
+    
+    const thumbnailUploadArea = document.getElementById('thumbnailUploadArea');
+    const thumbnailFileInput = document.getElementById('thumbnail');
+    const thumbnailPreview = document.getElementById('thumbnailPreview');
+    const thumbnailImage = document.getElementById('thumbnailImage');
+    
+    // Video upload
+    videoUploadArea.addEventListener('click', () => videoFileInput.click());
+    
+    videoFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            videoSource.src = url;
+            videoSource.type = file.type;
+            videoPreview.style.display = 'block';
+            
+            // Update upload area text
+            videoUploadArea.querySelector('.upload-text').textContent = `Selected: ${file.name}`;
+        } else {
+            videoPreview.style.display = 'none';
+            videoUploadArea.querySelector('.upload-text').textContent = 'Drop your video here or click to browse';
+        }
+    });
+    
+    // Thumbnail upload
+    thumbnailUploadArea.addEventListener('click', () => thumbnailFileInput.click());
+    
+    thumbnailFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                thumbnailImage.src = e.target.result;
+                thumbnailPreview.style.display = 'block';
+                
+                // Update upload area text
+                thumbnailUploadArea.querySelector('.upload-text').textContent = `Selected: ${file.name}`;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            thumbnailPreview.style.display = 'none';
+            thumbnailUploadArea.querySelector('.upload-text').textContent = 'Drop your thumbnail here or click to browse';
+        }
+    });
+    
+    // Form validation
+    const form = document.getElementById('videoForm');
+    form.addEventListener('submit', function(e) {
+        const title = titleInput.value.trim();
+        const description = descriptionInput.value.trim();
+        const videoFile = videoFileInput.files[0];
+        const videoUrl = document.getElementById('video_url').value.trim();
+        const activeTab = document.querySelector('.tab-button.active').dataset.tab;
+        
+        if (title.length < 1) {
+            e.preventDefault();
+            alert('Please enter a title with at least a characters.');
+            titleInput.focus();
+            return;
+        }
+        
+        if (description.length < 1) {
+            e.preventDefault();
+            alert('Please provide a description with at least a characters.');
+            descriptionInput.focus();
+            return;
+        }
+        
+        // Check if either video file or URL is provided
+        if (activeTab === 'upload' && !videoFile) {
+            e.preventDefault();
+            alert('Please upload a video file.');
+            return;
+        }
+        
+        if (activeTab === 'url' && !videoUrl) {
+            e.preventDefault();
+            alert('Please provide a video URL.');
+            document.getElementById('video_url').focus();
+            return;
+        }
+        
+        // Validate URL if provided
+        if (activeTab === 'url' && videoUrl) {
+            try {
+                new URL(videoUrl);
+            } catch {
+                e.preventDefault();
+                alert('Please enter a valid video URL.');
+                document.getElementById('video_url').focus();
+                return;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

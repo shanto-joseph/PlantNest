@@ -1,0 +1,1344 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load product_extras %}
+
+{% block title %}Analytics Dashboard - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.analytics-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, var(--nyanza) 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.analytics-hero {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.analytics-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.analytics-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.date-range-selector {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+}
+
+.range-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.range-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--celadon-2);
+    background: white;
+    color: var(--dartmouth-green);
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.range-btn:hover {
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+    color: var(--sea-green);
+    text-decoration: none;
+}
+
+.range-btn.active {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border-color: transparent;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+}
+
+.metric-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.metric-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+}
+
+.metric-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.trend-up {
+    background: #d4edda;
+    color: #155724;
+}
+
+.trend-down {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.trend-neutral {
+    background: #e2e3e5;
+    color: #495057;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.metric-label {
+    color: #6c757d;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.metric-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--celadon-2);
+}
+
+.metric-comparison {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.charts-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    border-color: var(--sea-green);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.chart-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.chart-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+}
+
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+
+.chart-placeholder {
+    height: 100%;
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dartmouth-green);
+    font-size: 1.1rem;
+    border: 2px solid var(--celadon-2);
+}
+
+.insights-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.insights-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.insights-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.insights-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.insights-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.insight-item {
+    background: var(--nyanza);
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.insight-item:hover {
+    border-color: var(--sea-green);
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.insight-title {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.insight-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.top-products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.product-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--nyanza);
+    border-radius: 12px;
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.product-item:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.product-rank {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.product-info {
+    flex: 1;
+}
+
+.product-name {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+}
+
+.product-sales {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.product-value {
+    text-align: right;
+}
+
+.sales-count {
+    color: var(--sea-green);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.revenue-amount {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.payment-analytics {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+.payment-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.payment-methods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.payment-method-card {
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.payment-method-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.payment-method-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.payment-method-name {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.payment-method-count {
+    color: var(--sea-green);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.payment-method-percentage {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.payment-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.payment-stat-card {
+    background: white;
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.payment-stat-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-2px);
+}
+
+.payment-stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.5rem;
+}
+
+.payment-stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.recent-payments {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.payments-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payments-table th {
+    background: var(--nyanza);
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.payments-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.payments-table tbody tr:hover {
+    background: var(--nyanza);
+}
+
+.payment-status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-refunded {
+    background: #cce5ff;
+    color: #0056b3;
+}
+
+.refund-indicator {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 2px solid #2196f3;
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #1565c0;
+    font-weight: 600;
+    text-align: center;
+}
+
+.export-section {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+    text-align: center;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-export {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-export:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 145, 108, 0.3);
+}
+
+.btn-export-secondary {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border: 2px solid var(--celadon-2);
+}
+
+.btn-export-secondary:hover {
+    background: var(--nyanza);
+    border-color: var(--sea-green);
+    color: var(--sea-green);
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .analytics-hero {
+        padding: 2rem 1.5rem;
+        text-align: center;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .charts-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .insights-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .payment-methods-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .range-buttons {
+        justify-content: center;
+    }
+    
+    .export-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .payment-methods-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .metric-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .metric-details {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    <div class="container-fluid">
+        <!-- Enhanced Hero Section -->
+        <div class="analytics-hero">
+            <div class="analytics-hero-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-4 mb-3">
+                            <i class="fas fa-chart-line"></i> Analytics Dashboard
+                        </h1>
+                        <p class="lead mb-0">Comprehensive insights into your business performance and growth metrics</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-right text-center mt-3 mt-lg-0">
+                        <button class="btn btn-outline-light btn-lg" onclick="refreshAnalytics()">
+                            <i class="fas fa-sync-alt"></i> Refresh Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Range Selector -->
+        <div class="date-range-selector">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h5 class="mb-0" style="color: var(--dartmouth-green); font-weight: 700;">
+                        <i class="fas fa-calendar-alt"></i> Select Time Period
+                    </h5>
+                </div>
+                <div class="col-lg-6">
+                    <div class="range-buttons">
+                        <a href="?range=7" class="range-btn {% if selected_range == 7 %}active{% endif %}">7 Days</a>
+                        <a href="?range=30" class="range-btn {% if selected_range == 30 %}active{% endif %}">30 Days</a>
+                        <a href="?range=90" class="range-btn {% if selected_range == 90 %}active{% endif %}">90 Days</a>
+                        <a href="?range=365" class="range-btn {% if selected_range == 365 %}active{% endif %}">1 Year</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="export-section">
+            <h5 style="color: var(--dartmouth-green); font-weight: 700; margin-bottom: 1rem;">
+                <i class="fas fa-download"></i> Download Analytics Report
+            </h5>
+            <p style="color: #6c757d; margin-bottom: 1.5rem;">Export comprehensive analytics data for the selected time period</p>
+            <div class="export-buttons">
+                <a href="{% url 'admin_control:export_analytics' %}?range={{ selected_range }}" class="btn-export">
+                    <i class="fas fa-file-csv"></i> Download Full Report (CSV)
+                </a>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <!-- Revenue Metric -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                    <div class="metric-trend {% if revenue_growth >= 0 %}trend-up{% else %}trend-down{% endif %}">
+                        <i class="fas fa-arrow-{% if revenue_growth >= 0 %}up{% else %}down{% endif %}"></i>
+                        {{ revenue_growth|floatformat:1 }}%
+                    </div>
+                </div>
+                <div class="metric-value">₹{{ current_period_revenue|floatformat:0 }}</div>
+                <div class="metric-label">Total Revenue</div>
+                <div class="metric-details">
+                    <span class="metric-comparison">vs previous period</span>
+                    <span style="color: var(--sea-green); font-weight: 600;">{{ selected_range }} days</span>
+                </div>
+            </div>
+
+            <!-- Orders Metric -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="metric-trend {% if orders_growth >= 0 %}trend-up{% else %}trend-down{% endif %}">
+                        <i class="fas fa-arrow-{% if orders_growth >= 0 %}up{% else %}down{% endif %}"></i>
+                        {{ orders_growth|floatformat:1 }}%
+                    </div>
+                </div>
+                <div class="metric-value">{{ current_period_orders }}</div>
+                <div class="metric-label">Total Orders</div>
+                <div class="metric-details">
+                    <span class="metric-comparison">vs previous period</span>
+                    <span style="color: var(--sea-green); font-weight: 600;">{{ selected_range }} days</span>
+                </div>
+            </div>
+
+            <!-- Average Order Value -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="metric-trend {% if aov_growth >= 0 %}trend-up{% else %}trend-down{% endif %}">
+                        <i class="fas fa-arrow-{% if aov_growth >= 0 %}up{% else %}down{% endif %}"></i>
+                        {{ aov_growth|floatformat:1 }}%
+                    </div>
+                </div>
+                <div class="metric-value">₹{{ avg_order_value|floatformat:0 }}</div>
+                <div class="metric-label">Average Order Value</div>
+                <div class="metric-details">
+                    <span class="metric-comparison">vs previous period</span>
+                    <span style="color: var(--sea-green); font-weight: 600;">AOV</span>
+                </div>
+            </div>
+
+            <!-- New Customers -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="metric-trend {% if customer_growth >= 0 %}trend-up{% else %}trend-down{% endif %}">
+                        <i class="fas fa-arrow-{% if customer_growth >= 0 %}up{% else %}down{% endif %}"></i>
+                        {{ customer_growth|floatformat:1 }}%
+                    </div>
+                </div>
+                <div class="metric-value">{{ new_customers }}</div>
+                <div class="metric-label">New Customers</div>
+                <div class="metric-details">
+                    <span class="metric-comparison">vs previous period</span>
+                    <span style="color: var(--sea-green); font-weight: 600;">{{ selected_range }} days</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <!-- Revenue Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-area"></i>
+                        </div>
+                        Revenue Trend
+                    </h4>
+                    <div class="chart-controls">
+                        <button class="btn btn-sm btn-outline-primary" onclick="toggleChartType('revenue')">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Orders Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        Orders Trend
+                    </h4>
+                    <div class="chart-controls">
+                        <button class="btn btn-sm btn-outline-primary" onclick="toggleChartType('orders')">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ordersChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insights and Top Products -->
+        <div class="insights-section">
+            <!-- Business Insights -->
+            <div class="insights-card">
+                <div class="insights-header">
+                    <div class="insights-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h4 class="insights-title">Business Insights</h4>
+                </div>
+                
+                <div class="insight-item">
+                    <div class="insight-title">
+                        <i class="fas fa-chart-line" style="color: var(--sea-green); margin-right: 0.5rem;"></i>
+                        Revenue Performance
+                    </div>
+                    <div class="insight-description">
+                        {% if revenue_growth > 0 %}
+                            Revenue is up {{ revenue_growth|floatformat:1 }}% compared to the previous period. This indicates strong business growth and customer demand.
+                        {% elif revenue_growth < 0 %}
+                            Revenue is down {{ revenue_growth|floatformat:1 }}% compared to the previous period. Consider reviewing marketing strategies and product offerings.
+                        {% else %}
+                            Revenue remains stable compared to the previous period. Focus on growth strategies to increase sales.
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="insight-item">
+                    <div class="insight-title">
+                        <i class="fas fa-users" style="color: var(--sea-green); margin-right: 0.5rem;"></i>
+                        Customer Acquisition
+                    </div>
+                    <div class="insight-description">
+                        {% if customer_growth > 0 %}
+                            Customer acquisition is growing at {{ customer_growth|floatformat:1 }}%. Your marketing efforts are effectively attracting new customers.
+                        {% else %}
+                            Customer acquisition needs attention. Consider improving marketing campaigns and customer referral programs.
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="insight-item">
+                    <div class="insight-title">
+                        <i class="fas fa-credit-card" style="color: var(--sea-green); margin-right: 0.5rem;"></i>
+                        Payment Success Rate
+                    </div>
+                    <div class="insight-description">
+                        Payment success rate is {{ payment_success_rate|floatformat:1 }}%. 
+                        {% if payment_success_rate >= 95 %}
+                            Excellent payment processing performance.
+                        {% elif payment_success_rate >= 90 %}
+                            Good payment processing with room for improvement.
+                        {% else %}
+                            Consider reviewing payment gateway settings and options.
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="insight-item">
+                    <div class="insight-title">
+                        <i class="fas fa-shopping-cart" style="color: var(--sea-green); margin-right: 0.5rem;"></i>
+                        Average Order Value
+                    </div>
+                    <div class="insight-description">
+                        {% if aov_growth > 0 %}
+                            AOV increased by {{ aov_growth|floatformat:1 }}%. Customers are purchasing higher-value items or more products per order.
+                        {% elif aov_growth < 0 %}
+                            AOV decreased by {{ aov_growth|floatformat:1 }}%. Consider upselling strategies and product bundling.
+                        {% else %}
+                            AOV remains stable. Implement cross-selling strategies to increase order values.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="insights-card">
+                <div class="insights-header">
+                    <div class="insights-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h4 class="insights-title">Top Products</h4>
+                </div>
+                
+                <div class="top-products-list">
+                    {% for product in top_products %}
+                    <div class="product-item">
+                        <div class="product-rank">{{ forloop.counter }}</div>
+                        <div class="product-info">
+                            <div class="product-name">{{ product.name|truncatechars:30 }}</div>
+                            <div class="product-sales">{{ product.total_sold|default:0 }} units sold</div>
+                        </div>
+                        <div class="product-value">
+                            <div class="sales-count">{{ product.total_sold|default:0 }}</div>
+                            <div class="revenue-amount">₹{{ product.price|multiply:product.total_sold|default:0|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No product sales data available for this period.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+     
+
+            <!-- Payment Statistics -->
+            <div class="payment-stats-grid">
+                <div class="payment-stat-card">
+                    <div class="payment-stat-value">{{ payment_stats.successful_payments }}</div>
+                    <div class="payment-stat-label">Successful</div>
+                </div>
+                <div class="payment-stat-card">
+                    <div class="payment-stat-value">{{ payment_stats.failed_payments }}</div>
+                    <div class="payment-stat-label">Failed</div>
+                </div>
+                <div class="payment-stat-card">
+                    <div class="payment-stat-value">{{ payment_stats.refunded_payments }}</div>
+                    <div class="payment-stat-label">Refunded</div>
+                </div>
+                <div class="payment-stat-card">
+                    <div class="payment-stat-value">{{ payment_success_rate|floatformat:1 }}%</div>
+                    <div class="payment-stat-label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Payments -->
+        <div class="recent-payments">
+            <div class="insights-header">
+                <div class="insights-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h4 class="insights-title">Recent Payments</h4>
+            </div>
+
+            <div class="table-responsive">
+                <table class="payments-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment_data in recent_payments %}
+                        <tr>
+                            <td>
+                                <strong>#{{ payment_data.payment.order.order_number }}</strong>
+                            </td>
+                            <td>{{ payment_data.payment.order.user.get_full_name|default:payment_data.payment.order.user.username }}</td>
+                            <td>
+                                <strong style="color: var(--sea-green);">₹{{ payment_data.payment.amount }}</strong>
+                                {% if payment_data.is_refunded %}
+                                    <div class="refund-indicator">
+                                        <i class="fas fa-undo"></i> Refunded: ₹{{ payment_data.refund_amount }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>{{ payment_data.payment.get_payment_method_display }}</td>
+                            <td>
+                                {% if payment_data.payment.is_successful %}
+                                    {% if payment_data.is_refunded %}
+                                        <span class="payment-status-indicator status-refunded">
+                                            <i class="fas fa-undo"></i> Refunded
+                                        </span>
+                                    {% else %}
+                                        <span class="payment-status-indicator status-success">
+                                            <i class="fas fa-check"></i> Success
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="payment-status-indicator status-failed">
+                                        <i class="fas fa-times"></i> Failed
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ payment_data.payment.payment_date|date:"M d, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No payment data available for this period.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+       
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart configurations
+const chartColors = {
+    primary: '#40916c',
+    secondary: '#2d6a4f',
+    success: '#28a745',
+    info: '#17a2b8',
+    warning: '#ffc107',
+    danger: '#dc3545',
+    light: '#f8f9fa',
+    dark: '#343a40'
+};
+
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueData = {{ revenue_data|safe }};
+
+const revenueChart = new Chart(revenueCtx, {
+    type: 'line',
+    data: {
+        labels: revenueData.map(item => {
+            const date = new Date(item.date);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }),
+        datasets: [{
+            label: 'Revenue (₹)',
+            data: revenueData.map(item => item.total),
+            borderColor: chartColors.primary,
+            backgroundColor: chartColors.primary + '20',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: chartColors.primary,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: chartColors.primary,
+                borderWidth: 1,
+                cornerRadius: 8,
+                displayColors: false,
+                callbacks: {
+                    label: function(context) {
+                        return 'Revenue: ₹' + context.parsed.y.toLocaleString();
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: '#6c757d'
+                }
+            },
+            y: {
+                grid: {
+                    color: '#e9ecef'
+                },
+                ticks: {
+                    color: '#6c757d',
+                    callback: function(value) {
+                        return '₹' + value.toLocaleString();
+                    }
+                }
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        }
+    }
+});
+
+// Orders Chart
+const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+const ordersData = {{ orders_data|safe }};
+
+const ordersChart = new Chart(ordersCtx, {
+    type: 'bar',
+    data: {
+        labels: ordersData.map(item => {
+            const date = new Date(item.date);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }),
+        datasets: [{
+            label: 'Orders',
+            data: ordersData.map(item => item.count),
+            backgroundColor: chartColors.secondary,
+            borderColor: chartColors.primary,
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: chartColors.secondary,
+                borderWidth: 1,
+                cornerRadius: 8,
+                displayColors: false,
+                callbacks: {
+                    label: function(context) {
+                        return 'Orders: ' + context.parsed.y;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: '#6c757d'
+                }
+            },
+            y: {
+                grid: {
+                    color: '#e9ecef'
+                },
+                ticks: {
+                    color: '#6c757d',
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Chart type toggle functionality
+function toggleChartType(chartName) {
+    if (chartName === 'revenue') {
+        revenueChart.config.type = revenueChart.config.type === 'line' ? 'bar' : 'line';
+        revenueChart.update();
+    } else if (chartName === 'orders') {
+        ordersChart.config.type = ordersChart.config.type === 'bar' ? 'line' : 'bar';
+        ordersChart.update();
+    }
+}
+
+// Export functionality
+function exportData(type) {
+    const selectedRange = {{ selected_range }};
+    const exportUrls = {
+        'revenue': `/admin-panel/analytics/export/revenue/?range=${selectedRange}`,
+        'orders': `/admin-panel/analytics/export/orders/?range=${selectedRange}`,
+        'customers': `/admin-panel/analytics/export/customers/?range=${selectedRange}`,
+        'products': `/admin-panel/analytics/export/products/?range=${selectedRange}`
+    };
+
+    if (exportUrls[type]) {
+        showNotification(`Exporting ${type} data...`, 'info');
+
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = exportUrls[type];
+        link.download = `${type}_report.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Show success notification after a brief delay
+        setTimeout(() => {
+            showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} report exported successfully!`, 'success');
+        }, 500);
+    } else {
+        showNotification('Export type not found', 'danger');
+    }
+}
+
+// Refresh analytics
+function refreshAnalytics() {
+    showNotification('Refreshing analytics data...', 'info');
+    
+    // Simulate refresh
+    setTimeout(() => {
+        location.reload();
+    }, 1500);
+}
+
+// Notification system
+function showNotification(message, type = 'success') {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                      type === 'info' ? 'alert-info' : 
+                      type === 'warning' ? 'alert-warning' : 'alert-danger';
+    
+    const notification = document.createElement('div');
+    notification.className = `alert ${alertClass} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '100px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '300px';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 4000);
+}
+
+// Auto-refresh every 5 minutes
+setInterval(() => {
+    console.log('Auto-refreshing analytics data...');
+    // In production, this would make an AJAX call to update data
+}, 300000);
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to metric cards
+    const metricCards = document.querySelectorAll('.metric-card');
+    metricCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(-5px) scale(1)';
+        });
+    });
+    
+    // Animate numbers on load
+    animateNumbers();
+});
+
+function animateNumbers() {
+    const metricValues = document.querySelectorAll('.metric-value');
+    metricValues.forEach(element => {
+        const finalValue = element.textContent.replace(/[₹,]/g, '');
+        const numericValue = parseFloat(finalValue);
+        
+        if (!isNaN(numericValue)) {
+            let currentValue = 0;
+            const increment = numericValue / 50;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= numericValue) {
+                    currentValue = numericValue;
+                    clearInterval(timer);
+                }
+                
+                if (element.textContent.includes('₹')) {
+                    element.textContent = '₹' + Math.floor(currentValue).toLocaleString();
+                } else {
+                    element.textContent = Math.floor(currentValue).toLocaleString();
+                }
+            }, 20);
+        }
+    });
+}
+</script>
+{% endblock %}

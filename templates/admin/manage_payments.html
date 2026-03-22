@@ -1,0 +1,797 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Manage Payments - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.payments-management-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, var(--nyanza) 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.payments-header {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.payments-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.payments-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+}
+
+.stat-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-total { background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%); }
+.stat-successful { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); }
+.stat-failed { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
+.stat-amount { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); }
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.payments-controls {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+}
+
+.filter-section {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 150px;
+}
+
+.filter-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dartmouth-green);
+    margin: 0;
+}
+
+.filter-input {
+    border: 2px solid var(--celadon-2);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.filter-input:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 2px solid var(--celadon-2);
+    border-radius: 25px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.payments-table-container {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.table-header {
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    padding: 1.5rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.table-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.payments-table {
+    margin: 0;
+}
+
+.payments-table th {
+    background: var(--nyanza);
+    border: none;
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.payments-table td {
+    border: none;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.payments-table tbody tr:hover {
+    background: var(--nyanza);
+}
+
+.payment-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-successful {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-refunded {
+    background: #cce5ff;
+    color: #0056b3;
+}
+
+.payment-method-badge {
+    background: var(--nyanza);
+    color: var(--dartmouth-green);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid var(--celadon-2);
+}
+
+.payment-amount {
+    font-weight: 700;
+    color: var(--sea-green);
+    font-size: 1.1rem;
+}
+
+.customer-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.customer-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.customer-details {
+    flex: 1;
+}
+
+.customer-name {
+    font-weight: 600;
+    color: var(--dartmouth-green);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.customer-email {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+}
+
+.btn-view:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 10px rgba(23, 162, 184, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-refund {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #212529;
+}
+
+.btn-refund:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 10px rgba(255, 193, 7, 0.3);
+    color: #212529;
+    text-decoration: none;
+}
+
+.btn-refund:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.payment-methods-breakdown {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.breakdown-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.breakdown-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.breakdown-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.methods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.method-card {
+    background: linear-gradient(135deg, var(--nyanza) 0%, var(--celadon) 100%);
+    border: 2px solid var(--celadon-2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.method-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.method-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.method-name {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.method-count {
+    color: var(--sea-green);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.method-amount {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.empty-state-icon {
+    font-size: 5rem;
+    color: var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .payments-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .stats-overview {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .methods-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .customer-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .payment-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payments-management-container">
+    <div class="container-fluid">
+        <!-- Enhanced Header -->
+        <div class="payments-header">
+            <div class="payments-header-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-5 mb-2">
+                            <i class="fas fa-credit-card"></i> Payment Management
+                        </h1>
+                        <p class="lead mb-0">Monitor and manage all payment transactions</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-right text-center mt-3 mt-lg-0">
+                        <button class="btn btn-outline-light btn-lg" onclick="refreshPayments()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-icon stat-total">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="stat-number">{{ total_payments }}</div>
+                <div class="stat-label">Total Payments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-successful">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-number">{{ successful_payments }}</div>
+                <div class="stat-label">Successful</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-failed">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-number">{{ failed_payments }}</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-amount">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-number">₹{{ total_amount|floatformat:0 }}</div>
+                <div class="stat-label">Total Amount</div>
+            </div>
+        </div>
+
+        <!-- Payment Methods Breakdown -->
+        {% if payment_methods %}
+        <div class="payment-methods-breakdown">
+            <div class="breakdown-header">
+                <div class="breakdown-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <h4 class="breakdown-title">Payment Methods Breakdown</h4>
+            </div>
+            
+            <div class="methods-grid">
+                {% for method in payment_methods %}
+                <div class="method-card">
+                    <div class="method-icon">
+                        {% if method.payment_method == 'razorpay' %}
+                            <i class="fas fa-mobile-alt"></i>
+                        {% elif method.payment_method == 'card' %}
+                            <i class="fas fa-credit-card"></i>
+                        {% elif method.payment_method == 'cash_on_delivery' %}
+                            <i class="fas fa-money-bill-wave"></i>
+                        {% else %}
+                            <i class="fas fa-payment"></i>
+                        {% endif %}
+                    </div>
+                    <div class="method-name">{{ method.payment_method|title }}</div>
+                    <div class="method-count">{{ method.count }}</div>
+                    <div class="method-amount">₹{{ method.total_amount|default:0|floatformat:0 }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Enhanced Controls -->
+        <div class="payments-controls">
+            <form method="get" class="filter-section">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" name="search" 
+                           placeholder="Search by transaction ID, customer name, or order number..." 
+                           value="{{ request.GET.search }}">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select class="filter-input" name="status">
+                        <option value="">All Status</option>
+                        <option value="successful" {% if status_filter == 'successful' %}selected{% endif %}>Successful</option>
+                        <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Method</label>
+                    <select class="filter-input" name="method">
+                        <option value="">All Methods</option>
+                        <option value="razorpay" {% if method_filter == 'razorpay' %}selected{% endif %}>Razorpay</option>
+                        <option value="card" {% if method_filter == 'card' %}selected{% endif %}>Card</option>
+                        <option value="cash_on_delivery" {% if method_filter == 'cash_on_delivery' %}selected{% endif %}>COD</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Date Range</label>
+                    <select class="filter-input" name="date_range">
+                        <option value="">All Time</option>
+                        <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if date_filter == 'week' %}selected{% endif %}>This Week</option>
+                        <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </form>
+        </div>
+
+        <!-- Payments Table -->
+        <div class="payments-table-container">
+            <div class="table-header">
+                <h5 class="table-title">
+                    <i class="fas fa-list"></i> Payment Transactions
+                </h5>
+            </div>
+            <div class="table-responsive">
+                {% if payments %}
+                <table class="table payments-table">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Customer</th>
+                            <th>Order</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <td>
+                                <code>{{ payment.transaction_id|default:"N/A" }}</code>
+                            </td>
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-avatar">
+                                        {{ payment.order.user.first_name.0|default:payment.order.user.username.0|upper }}
+                                    </div>
+                                    <div class="customer-details">
+                                        <div class="customer-name">{{ payment.order.user.get_full_name|default:payment.order.user.username }}</div>
+                                        <div class="customer-email">{{ payment.order.user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_control:view_order_details' payment.order.id %}" 
+                                   class="text-primary font-weight-bold">
+                                    #{{ payment.order.order_number }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="payment-amount">₹{{ payment.amount }}</div>
+                            </td>
+                            <td>
+                                <span class="payment-method-badge">
+                                    {{ payment.get_payment_method_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if payment.is_successful %}
+                                    {% if payment.is_refunded %}
+                                        <span class="payment-status status-refunded">
+                                            <i class="fas fa-undo"></i> Refunded
+                                        </span>
+                                    {% else %}
+                                        <span class="payment-status status-successful">
+                                            <i class="fas fa-check"></i> Success
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="payment-status status-failed">
+                                        <i class="fas fa-times"></i> Failed
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div>{{ payment.payment_date|date:"M d, Y" }}</div>
+                                <small class="text-muted">{{ payment.payment_date|time:"g:i A" }}</small>
+                            </td>
+                            <td>
+                                <div class="payment-actions">
+                                    <a href="{% url 'admin_control:view_payment_details' payment.id %}" 
+                                       class="btn-action btn-view" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if payment.is_successful and not payment.is_refunded and payment.order.status != 'delivered' %}
+                                    <form method="post" action="{% url 'admin_control:process_refund' payment.id %}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Are you sure you want to process a refund for ₹{{ payment.amount }}?');">
+                                        {% csrf_token %}
+                                        <!-- <button type="submit" class="btn-action btn-refund" title="Process Refund">
+                                            <i class="fas fa-undo"></i>
+                                        </button> -->
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h4>No payments found</h4>
+                    <p>Payment transactions will appear here when customers make purchases.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if payments.has_other_pages %}
+        <nav aria-label="Payments pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if payments.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ payments.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.method %}&method={{ request.GET.method }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for num in payments.paginator.page_range %}
+                    {% if payments.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.method %}&method={{ request.GET.method }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if payments.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ payments.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.method %}&method={{ request.GET.method }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function refreshPayments() {
+    showNotification('Refreshing payments...', 'info');
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function showNotification(message, type = 'success') {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                      type === 'info' ? 'alert-info' : 
+                      type === 'warning' ? 'alert-warning' : 'alert-danger';
+    
+    const notification = document.createElement('div');
+    notification.className = `alert ${alertClass} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '100px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '300px';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 4000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,501 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}All Notifications - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.notifications-page-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, var(--nyanza) 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.notifications-header {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.notifications-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.notifications-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.notifications-controls {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+}
+
+.notification-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.notification-card:hover {
+    border-color: var(--sea-green);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.notification-card.unread {
+    border-left: 5px solid var(--sea-green);
+    background: linear-gradient(135deg, rgba(64, 145, 108, 0.05) 0%, white 100%);
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.notification-title-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.icon-order { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; }
+.icon-stock { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #212529; }
+.icon-user { background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%); color: white; }
+.icon-support { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; }
+.icon-blog { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; }
+.icon-product { background: linear-gradient(135deg, var(--mint-2) 0%, var(--sea-green) 100%); color: white; }
+.icon-system { background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); color: white; }
+
+.notification-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.notification-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.priority-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.priority-low { background: #e9ecef; color: #495057; }
+.priority-medium { background: #cce5ff; color: #0056b3; }
+.priority-high { background: #fff3cd; color: #856404; }
+.priority-urgent { background: #f8d7da; color: #721c24; }
+
+.notification-message {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-notification {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 2px solid;
+}
+
+.btn-view {
+    background: transparent;
+    color: var(--sea-green);
+    border-color: var(--sea-green);
+}
+
+.btn-view:hover {
+    background: var(--sea-green);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-dismiss {
+    background: transparent;
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-dismiss:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+}
+
+.empty-state-icon {
+    font-size: 5rem;
+    color: var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .notifications-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .notification-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .notification-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .notification-actions {
+        justify-content: center;
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-page-container">
+    <div class="container-fluid">
+        <!-- Enhanced Header -->
+        <div class="notifications-header admin-card">
+            <div class="notifications-header-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-5 mb-2">
+                            <i class="fas fa-bell"></i> All Notifications
+                        </h1>
+                        <p class="lead mb-0">Stay updated with all system activities and alerts</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-right text-center mt-3 mt-lg-0">
+                        <a href="{% url 'admin_control:dashboard' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="notifications-controls admin-card">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="filter-section">
+                        <select class="form-control" id="typeFilter" onchange="filterNotifications()">
+                            <option value="">All Types</option>
+                            <option value="order_placed">Orders</option>
+                            <option value="low_stock">Stock Alerts</option>
+                            <option value="user_registered">New Users</option>
+                            <option value="support_ticket">Support</option>
+                            <option value="blog_submitted">Blog Posts</option>
+                            <option value="product_added">Products</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-right">
+                    <button class="btn btn-admin-success" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double"></i> Mark All as Read
+                    </button>
+                    <button class="btn btn-admin-secondary ml-2" onclick="refreshNotifications()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications List -->
+        <div id="notificationsContainer">
+            {% if notifications %}
+                {% for notification in notifications %}
+                <div class="notification-card admin-card {% if not notification.is_read %}unread{% endif %}" 
+                     data-notification-id="{{ notification.id }}"
+                     data-type="{{ notification.notification_type }}">
+                    <div class="notification-header">
+                        <div class="notification-title-section">
+                            <div class="notification-icon icon-{{ notification.notification_type|cut:'_' }}">
+                                <i class="{{ notification.get_icon }}"></i>
+                            </div>
+                            <div>
+                                <h5 class="notification-title">{{ notification.title }}</h5>
+                                <div class="notification-meta">
+                                    <span><i class="fas fa-clock"></i> {{ notification.created_at|timesince }} ago</span>
+                                    <span class="priority-badge priority-{{ notification.priority }}">
+                                        {{ notification.get_priority_display }}
+                                    </span>
+                                    {% if notification.notification_type %}
+                                        <span class="badge badge-secondary">{{ notification.get_notification_type_display }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% if not notification.is_read %}
+                            <div class="notification-unread-indicator">
+                                <span class="badge badge-success">New</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="notification-message">
+                        {{ notification.message }}
+                    </div>
+                    
+                    <div class="notification-actions">
+                        {% if notification.action_url %}
+                            <a href="{{ notification.action_url }}" class="btn-notification btn-view" 
+                               onclick="markNotificationAsRead({{ notification.id }})">
+                                <i class="fas fa-external-link-alt"></i> View Details
+                            </a>
+                        {% endif %}
+                        {% if not notification.is_read %}
+                            <button class="btn-notification btn-view" onclick="markNotificationAsRead({{ notification.id }})">
+                                <i class="fas fa-check"></i> Mark as Read
+                            </button>
+                        {% endif %}
+                        <button class="btn-notification btn-admin-danger" onclick="dismissNotification(event, {{ notification.id }})">
+                            <i class="fas fa-times"></i> Dismiss
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state admin-card">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-bell-slash"></i>
+                    </div>
+                    <h4>No notifications found</h4>
+                    <p class="text-muted">You're all caught up! New notifications will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function filterNotifications() {
+    const filterValue = document.getElementById('typeFilter').value;
+    const notifications = document.querySelectorAll('.notification-card');
+    
+    notifications.forEach(notification => {
+        const type = notification.dataset.type;
+        if (!filterValue || type === filterValue) {
+            notification.style.display = 'block';
+        } else {
+            notification.style.display = 'none';
+        }
+    });
+}
+
+function refreshNotifications() {
+    // Show loading state
+    const container = document.getElementById('notificationsContainer');
+    const originalContent = container.innerHTML;
+    
+    container.innerHTML = `
+        <div class="text-center py-5">
+            <i class="fas fa-spinner fa-spin fa-2x text-primary mb-3"></i>
+            <p>Refreshing notifications...</p>
+        </div>
+    `;
+    
+    // Simulate refresh (in real implementation, this would be an AJAX call)
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// Override the global functions for this page
+function markNotificationAsRead(notificationId) {
+    fetch(`/admin-panel/notifications/mark-read/${notificationId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const notificationCard = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notificationCard) {
+                notificationCard.classList.remove('unread');
+                const newBadge = notificationCard.querySelector('.badge-success');
+                if (newBadge) {
+                    newBadge.remove();
+                }
+                
+                // Update mark as read button
+                const markReadBtn = notificationCard.querySelector('button[onclick*="markNotificationAsRead"]');
+                if (markReadBtn) {
+                    markReadBtn.style.display = 'none';
+                }
+            }
+            
+            showAdminNotification('Notification marked as read', 'success');
+        }
+    })
+    .catch(error => {
+        console.error('Error marking notification as read:', error);
+        showAdminNotification('Error marking notification as read', 'error');
+    });
+}
+
+function dismissNotification(event, notificationId) {
+    event.stopPropagation();
+    
+    if (confirm('Are you sure you want to dismiss this notification?')) {
+        fetch(`/admin-panel/notifications/dismiss/${notificationId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const notificationCard = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                if (notificationCard) {
+                    notificationCard.style.opacity = '0';
+                    notificationCard.style.transform = 'translateX(-100%)';
+                    setTimeout(() => {
+                        notificationCard.remove();
+                        
+                        // Check if no notifications left
+                        const remainingNotifications = document.querySelectorAll('.notification-card').length;
+                        if (remainingNotifications === 0) {
+                            document.getElementById('notificationsContainer').innerHTML = `
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-bell-slash"></i>
+                                    </div>
+                                    <h4>No notifications found</h4>
+                                    <p class="text-muted">You're all caught up! New notifications will appear here.</p>
+                                </div>
+                            `;
+                        }
+                    }, 300);
+                }
+                
+                showAdminNotification('Notification dismissed', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error dismissing notification:', error);
+            showAdminNotification('Error dismissing notification', 'error');
+        });
+    }
+}
+
+function markAllAsRead() {
+    const unreadNotifications = document.querySelectorAll('.notification-card.unread');
+    
+    if (unreadNotifications.length === 0) {
+        showAdminNotification('No unread notifications to mark', 'info');
+        return;
+    }
+    
+    if (confirm(`Mark all ${unreadNotifications.length} notifications as read?`)) {
+        fetch('/admin-panel/notifications/mark-all-read/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove unread styling from all notifications
+                unreadNotifications.forEach(notification => {
+                    notification.classList.remove('unread');
+                    const newBadge = notification.querySelector('.badge-success');
+                    if (newBadge) {
+                        newBadge.remove();
+                    }
+                    
+                    // Hide mark as read buttons
+                    const markReadBtn = notification.querySelector('button[onclick*="markNotificationAsRead"]');
+                    if (markReadBtn) {
+                        markReadBtn.style.display = 'none';
+                    }
+                });
+                
+                showAdminNotification(`${data.marked_count} notifications marked as read`, 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error marking all notifications as read:', error);
+            showAdminNotification('Error marking notifications as read', 'error');
+        });
+    }
+}
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+</script>
+{% endblock %} 

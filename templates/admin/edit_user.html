@@ -1,0 +1,580 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% load admin_extras %}
+
+{% block title %}Edit User - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.edit-user-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, var(--nyanza) 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.edit-user-header {
+    background: linear-gradient(135deg, var(--dartmouth-green) 0%, var(--brunswick-green) 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.edit-user-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%23ffffff" opacity="0.1"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+.edit-user-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.user-form-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    border: 2px solid var(--celadon-2);
+    transition: all 0.3s ease;
+}
+
+.user-form-card:hover {
+    border-color: var(--sea-green);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.form-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--celadon-2);
+}
+
+.form-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.form-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.form-subtitle {
+    color: #6c757d;
+    margin: 0;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--nyanza) 0%, #f8f9fa 100%);
+    border-radius: 15px;
+    border: 2px solid var(--celadon-2);
+}
+
+.section-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-icon {
+    width: 35px;
+    height: 35px;
+    background: var(--sea-green);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    color: var(--dartmouth-green);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.form-group label i {
+    color: var(--sea-green);
+    width: 16px;
+}
+
+.form-control {
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.form-control:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.25rem rgba(64, 145, 108, 0.25), 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.form-control:hover {
+    border-color: var(--mint-2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.status-section {
+    background: linear-gradient(135deg, #e8f5e8 0%, var(--nyanza) 100%);
+    border: 2px solid var(--sea-green);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.status-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.status-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--sea-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.status-title {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.form-check {
+    background: white;
+    border: 2px solid var(--celadon-2);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.form-check:hover {
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+}
+
+.form-check-input:checked + .form-check-label {
+    color: var(--sea-green);
+    font-weight: 600;
+}
+
+.form-check-label {
+    color: var(--dartmouth-green);
+    font-weight: 500;
+    margin-left: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.help-text {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.form-actions {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    border: 2px solid var(--celadon-2);
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    color: white;
+    border: none;
+    padding: 1rem 3rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-width: 200px;
+}
+
+.btn-save:hover {
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(64, 145, 108, 0.4);
+}
+
+.btn-save::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-save:hover::before {
+    left: 100%;
+}
+
+.btn-cancel {
+    background: transparent;
+    color: var(--dartmouth-green);
+    border: 2px solid var(--celadon-2);
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    margin-left: 1rem;
+}
+
+.btn-cancel:hover {
+    color: var(--sea-green);
+    text-decoration: none;
+    border-color: var(--sea-green);
+    background: var(--nyanza);
+    transform: translateY(-2px);
+}
+
+.user-preview {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 2px solid var(--celadon-2);
+    margin-bottom: 2rem;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sea-green) 0%, var(--dartmouth-green) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 auto 1rem;
+}
+
+.user-info {
+    text-align: center;
+}
+
+.user-name {
+    color: var(--dartmouth-green);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.user-email {
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.user-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    background: var(--nyanza);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid var(--celadon-2);
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--sea-green);
+    display: block;
+}
+
+.stat-label {
+    color: var(--dartmouth-green);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+@keyframes float {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-100px) translateY(-100px); }
+}
+
+@media (max-width: 768px) {
+    .edit-user-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .user-form-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .form-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .btn-cancel {
+        margin-left: 0;
+        margin-top: 1rem;
+        display: block;
+    }
+    
+    .user-stats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-user-container">
+    <div class="container-fluid">
+        <!-- Enhanced Header -->
+        <div class="edit-user-header">
+            <div class="edit-user-header-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-5 mb-2">
+                            <i class="fas fa-user-edit"></i> Edit User Account
+                        </h1>
+                        <p class="lead mb-0">Update user information and account settings</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-right text-center mt-3 mt-lg-0">
+                        <a href="{% url 'admin_control:view_user' user_obj.pk %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-arrow-left"></i> Back to User
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <!-- User Preview -->
+                <div class="user-preview">
+                    <div class="user-avatar">
+                        {{ user_obj.first_name.0|default:user_obj.username.0|upper }}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ user_obj.get_full_name|default:user_obj.username }}</div>
+                        <div class="user-email">{{ user_obj.email }}</div>
+                        <span class="badge badge-{% if user_obj.is_admin %}danger{% else %}primary{% endif %} px-3 py-2">
+                            {{ user_obj.role.name }}
+                        </span>
+                    </div>
+                    
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">{{ user_obj.orders.count }}</span>
+                            <div class="stat-label">Orders</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ user_obj.date_joined|days_since }}</span>
+                            <div class="stat-label">Days Active</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-8">
+                <div class="user-form-card">
+                    <div class="form-header">
+                        <div class="form-icon">
+                            <i class="fas fa-user-cog"></i>
+                        </div>
+                        <div>
+                            <h4 class="form-title">User Information</h4>
+                            <p class="form-subtitle">Update user details and permissions</p>
+                        </div>
+                    </div>
+
+                    <form method="post" class="admin-form">
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <div class="section-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                Personal Information
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.username.id_for_label }}">
+                                            <i class="fas fa-at"></i> Username
+                                        </label>
+                                        {{ form.username }}
+                                        {% for error in form.username.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.email.id_for_label }}">
+                                            <i class="fas fa-envelope"></i> Email Address
+                                        </label>
+                                        {{ form.email }}
+                                        {% for error in form.email.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.first_name.id_for_label }}">
+                                            <i class="fas fa-user"></i> First Name
+                                        </label>
+                                        {{ form.first_name }}
+                                        {% for error in form.first_name.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.last_name.id_for_label }}">
+                                            <i class="fas fa-user"></i> Last Name
+                                        </label>
+                                        {{ form.last_name }}
+                                        {% for error in form.last_name.errors %}
+                                            <div class="text-danger small mt-1">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Role & Permissions -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <div class="section-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                Role & Permissions
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.role.id_for_label }}">
+                                    <i class="fas fa-user-tag"></i> User Role
+                                </label>
+                                {{ form.role }}
+                                {% for error in form.role.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                                <div class="help-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Determines the user's access level and permissions within the system
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Status -->
+                        <div class="status-section">
+                            <div class="status-header">
+                                <div class="status-icon">
+                                    <i class="fas fa-toggle-on"></i>
+                                </div>
+                                <div class="status-title">Account Status</div>
+                            </div>
+                            
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    <i class="fas fa-check-circle"></i>
+                                    {{ form.is_active.label }}
+                                </label>
+                                {% for error in form.is_active.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                                {% if form.is_active.help_text %}
+                                    <div class="help-text mt-2">
+                                        <i class="fas fa-lightbulb"></i>
+                                        {{ form.is_active.help_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="{% url 'admin_control:view_user' user_obj.pk %}" class="btn-cancel">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

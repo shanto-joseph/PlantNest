@@ -1,0 +1,216 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Manage Categories - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1><i class="fas fa-tags"></i> Manage Categories</h1>
+            <p class="text-muted">Organize your products with categories</p>
+        </div>
+        <div class="col-lg-4 text-right">
+            <a href="{% url 'admin_control:add_category' %}" class="btn btn-admin-primary">
+                <i class="fas fa-plus"></i> Add Category
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card categories-table-card admin-card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h5><i class="fas fa-list"></i> Categories List</h5>
+            </div>
+            <div class="col-lg-6">
+                <div class="search-box">
+                    <input type="text" class="form-control" placeholder="Search categories..." id="categorySearch">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if categories %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Products</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" class="category-thumb" alt="{{ category.name }}">
+                            {% else %}
+                                <div class="category-thumb-placeholder">
+                                    <i class="fas fa-tag"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ category.name }}</strong>
+                        </td>
+                        <td>{{ category.description|truncatechars:60 }}</td>
+                        <td>
+                            <span class="badge badge-info">{{ category.products.count }}</span>
+                        </td>
+                        <td>{{ category.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'admin_control:edit_category' category.pk %}" class="btn btn-admin-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'admin_control:delete_category' category.pk %}" class="btn btn-admin-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-tags fa-5x text-muted mb-3"></i>
+            <h4>No categories found</h4>
+            <p class="text-muted">Create your first category to organize your products.</p>
+            <a href="{% url 'admin_control:add_category' %}" class="btn btn-admin-primary">
+                <i class="fas fa-plus"></i> Create First Category
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Category Statistics -->
+<div class="row mt-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card admin-card">
+            <div class="card-body text-center">
+                <i class="fas fa-tags fa-2x text-primary mb-2"></i>
+                <h4>{{ categories|length }}</h4>
+                <small class="text-muted">Total Categories</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card admin-card">
+            <div class="card-body text-center">
+                <i class="fas fa-seedling fa-2x text-success mb-2"></i>
+                <h4 id="totalProducts">0</h4>
+                <small class="text-muted">Total Products</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card admin-card">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                <h4 id="avgProductsPerCategory">0</h4>
+                <small class="text-muted">Avg Products/Category</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card admin-card">
+            <div class="card-body text-center">
+                <i class="fas fa-image fa-2x text-warning mb-2"></i>
+                <h4 id="categoriesWithImages">0</h4>
+                <small class="text-muted">With Images</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.category-thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+}
+
+.category-thumb-placeholder {
+    width: 50px;
+    height: 50px;
+    background: var(--nyanza);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 2px solid var(--celadon-2);
+    color: var(--sea-green);
+}
+
+.categories-table-card {
+    border: 2px solid var(--celadon-2);
+}
+
+.search-box input {
+    border: 2px solid var(--celadon-2);
+    border-radius: 25px;
+}
+
+.search-box input:focus {
+    border-color: var(--sea-green);
+    box-shadow: 0 0 0 0.2rem rgba(64, 145, 108, 0.25);
+}
+</style>
+
+<script>
+// Search functionality
+document.getElementById('categorySearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const categoryName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const description = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        
+        if (categoryName.includes(searchTerm) || description.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Update statistics
+function updateStatistics() {
+    const rows = document.querySelectorAll('tbody tr');
+    let totalProducts = 0;
+    let categoriesWithImages = 0;
+    
+    rows.forEach(row => {
+        const productCount = parseInt(row.querySelector('.badge').textContent) || 0;
+        totalProducts += productCount;
+        
+        const hasImage = row.querySelector('.category-thumb');
+        if (hasImage) {
+            categoriesWithImages++;
+        }
+    });
+    
+    const avgProducts = rows.length > 0 ? Math.round(totalProducts / rows.length) : 0;
+    
+    document.getElementById('totalProducts').textContent = totalProducts;
+    document.getElementById('avgProductsPerCategory').textContent = avgProducts;
+    document.getElementById('categoriesWithImages').textContent = categoriesWithImages;
+}
+
+// Initialize statistics
+document.addEventListener('DOMContentLoaded', updateStatistics);
+</script>
+{% endblock %}
