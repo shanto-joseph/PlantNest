@@ -222,9 +222,12 @@ def razorpay_payment(request):
         return redirect('order_payment:checkout')
     
     import razorpay
+    import os
     
     # Initialize Razorpay client
-    client = razorpay.Client(auth=("RAZORPAY_KEY_ID_REMOVED", "RAZORPAY_SECRET_REMOVED"))
+    razorpay_key_id = os.environ.get('RAZORPAY_KEY_ID')
+    razorpay_key_secret = os.environ.get('RAZORPAY_KEY_SECRET')
+    client = razorpay.Client(auth=(razorpay_key_id, razorpay_key_secret))
     
     amount = int(float(checkout_data['total_amount']) * 100)  # Convert to paise
     
@@ -237,7 +240,7 @@ def razorpay_payment(request):
     
     context = {
         'razorpay_order_id': razorpay_order['id'],
-        'razorpay_key_id': 'RAZORPAY_KEY_ID_REMOVED',
+        'razorpay_key_id': razorpay_key_id,
         'amount': amount,
         'currency': 'INR',
         'user': request.user,
